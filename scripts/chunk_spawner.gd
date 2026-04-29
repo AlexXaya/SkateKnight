@@ -43,6 +43,7 @@ func _spawn_one() -> void:
 func _cull_behind() -> void:
 	var min_keep_z := _player.global_position.z - chunk_length * float(chunks_behind)
 	while _spawned.size() > 0 and _spawned[0].global_position.z + chunk_length < min_keep_z:
-		var old := _spawned.pop_front()
-	old.queue_free()
+		var old: Node3D = _spawned[0]
+		_spawned.remove_at(0)
+		old.queue_free()
 

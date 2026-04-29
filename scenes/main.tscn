@@ -11,7 +11,7 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6c6b8"]
 shader = ExtResource("6_2h3to")
 shader_parameter/albedo = Color(0.82, 0.84, 0.9, 1)
-shader_parameter/shadow_tint = Color(0.35, 0.33, 0.45)
+shader_parameter/shadow_tint = Color(0.35, 0.33, 0.45, 1)
 shader_parameter/shade_threshold = 0.45
 shader_parameter/shade_softness = 0.07
 shader_parameter/rim_strength = 0.45
@@ -20,7 +20,7 @@ shader_parameter/rim_power = 3.0
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cub"]
 shader = ExtResource("6_2h3to")
 shader_parameter/albedo = Color(0.9, 0.45, 0.25, 1)
-shader_parameter/shadow_tint = Color(0.35, 0.18, 0.12)
+shader_parameter/shadow_tint = Color(0.35, 0.18, 0.12, 1)
 shader_parameter/shade_threshold = 0.5
 shader_parameter/shade_softness = 0.08
 shader_parameter/rim_strength = 0.35

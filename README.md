@@ -87,6 +87,16 @@ This repo includes a fresh Godot 4 project with:
 - Basic obstacles + pickups (placeholder)
 - Minimal HUD
 
+### Godot binary path (Windows)
+This repo includes a helper script pinned to your current Godot install folder:
+- `tools/run_godot.ps1` uses `C:\Users\matth\Downloads\Godot_v4.6.2-stable_win64.exe`
+
+Run it from PowerShell:
+
+```powershell
+.\tools\run_godot.ps1
+```
+
 To swap in Itch.io assets later:
 - Replace placeholder meshes in `scenes/track/` and `scenes/props/`
 - Keep collision shapes + socket transforms stable
