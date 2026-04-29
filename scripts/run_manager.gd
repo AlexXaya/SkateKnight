@@ -34,8 +34,7 @@ func _on_coin_collected(amount: int) -> void:
 	coins += amount
 
 func _on_crashed() -> void:
-	if not _is_running:
-		return
-	_is_running = false
-	run_over.emit()
+	# For now, crashing into obstacles should NOT end the run.
+	# We'll wire up "run ending" behavior later.
+	pass
 

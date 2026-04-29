@@ -27,6 +27,25 @@ size = Vector3(1.25, 1.25, 1.25)
 [sub_resource type="BoxMesh" id="BoxMesh_cub"]
 size = Vector3(1.25, 1.25, 1.25)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats"]
+bg_color = Color(0.1, 0.12, 0.18, 0.85)
+border_color = Color(0.35, 0.55, 1, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+corner_radius_bottom_right = 16
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 8
+shadow_offset = Vector2(0, 5)
+
 [node name="Main" type="Node3D"]
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
@@ -98,28 +117,100 @@ layout_mode = 3
 anchors_preset = 15
 offset_left = 0.0
 offset_top = 0.0
-offset_right = 1280.0
-offset_bottom = 720.0
+offset_right = 0.0
+offset_bottom = 0.0
 
 [node name="Margin" type="MarginContainer" parent="HUD/HUD"]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 10
 offset_left = 18.0
 offset_top = 18.0
-offset_right = 1262.0
-offset_bottom = 702.0
+offset_right = -18.0
+offset_bottom = 0.0
 
 [node name="VBox" type="VBoxContainer" parent="HUD/HUD/Margin"]
 layout_mode = 2
+size_flags_horizontal = 3
 
-[node name="Coins" type="Label" parent="HUD/HUD/Margin/VBox"]
-text = "Coins: 0"
+[node name="TopStatsCenter" type="CenterContainer" parent="HUD/HUD/Margin/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
 
-[node name="Score" type="Label" parent="HUD/HUD/Margin/VBox"]
-text = "Score: 0"
+[node name="TopStats" type="HBoxContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter"]
+theme_override_constants/separation = 14
 
-[node name="Distance" type="Label" parent="HUD/HUD/Margin/VBox"]
-text = "Distance: 0m"
+[node name="CoinsBox" type="PanelContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats"]
+custom_minimum_size = Vector2(260, 0)
+theme_override_styles/panel = SubResource("StyleBoxFlat_stats")
+
+[node name="Pad" type="MarginContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/CoinsBox"]
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/CoinsBox/Pad"]
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/CoinsBox/Pad/VBox"]
+text = "COINS"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+
+[node name="Value" type="Label" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/CoinsBox/Pad/VBox"]
+text = "0"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 34
+
+[node name="ScoreBox" type="PanelContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats"]
+custom_minimum_size = Vector2(260, 0)
+theme_override_styles/panel = SubResource("StyleBoxFlat_stats")
+
+[node name="Pad" type="MarginContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/ScoreBox"]
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/ScoreBox/Pad"]
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/ScoreBox/Pad/VBox"]
+text = "SCORE"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+
+[node name="Value" type="Label" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/ScoreBox/Pad/VBox"]
+text = "0"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 34
+
+[node name="DistanceBox" type="PanelContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats"]
+custom_minimum_size = Vector2(260, 0)
+theme_override_styles/panel = SubResource("StyleBoxFlat_stats")
+
+[node name="Pad" type="MarginContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/DistanceBox"]
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/DistanceBox/Pad"]
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/DistanceBox/Pad/VBox"]
+text = "DISTANCE"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+
+[node name="Value" type="Label" parent="HUD/HUD/Margin/VBox/TopStatsCenter/TopStats/DistanceBox/Pad/VBox"]
+text = "0m"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 34
+
+[node name="Spacer" type="Control" parent="HUD/HUD/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="GameOver" type="Control" parent="HUD"]
 layout_mode = 3
