@@ -31,6 +31,15 @@ shader_parameter/shade_softness = 0.08
 shader_parameter/rim_strength = 0.05
 shader_parameter/rim_power = 3.0
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_coin"]
+shader = ExtResource("1_0gk1p")
+shader_parameter/albedo = Color(0.98, 0.86, 0.2, 1)
+shader_parameter/shadow_tint = Color(0.55, 0.42, 0.05, 1)
+shader_parameter/shade_threshold = 0.5
+shader_parameter/shade_softness = 0.08
+shader_parameter/rim_strength = 0.65
+shader_parameter/rim_power = 2.4
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(10, 1, 32)
 
@@ -133,7 +142,7 @@ shape = SubResource("SphereShape3D_coin")
 [node name="CoinMesh" type="MeshInstance3D" parent="Coins/Coin1"]
 mesh = SubResource("BoxMesh_column")
 scale = Vector3(0.15, 0.15, 0.05)
-surface_material_override/0 = SubResource("ShaderMaterial_ruin")
+surface_material_override/0 = SubResource("ShaderMaterial_coin")
 
 [node name="Coin2" type="Area3D" parent="Coins"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.2, 0)
@@ -145,7 +154,7 @@ shape = SubResource("SphereShape3D_coin")
 [node name="CoinMesh" type="MeshInstance3D" parent="Coins/Coin2"]
 mesh = SubResource("BoxMesh_column")
 scale = Vector3(0.15, 0.15, 0.05)
-surface_material_override/0 = SubResource("ShaderMaterial_ruin")
+surface_material_override/0 = SubResource("ShaderMaterial_coin")
 
 [node name="Coin3" type="Area3D" parent="Coins"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.2, 4)
@@ -157,7 +166,7 @@ shape = SubResource("SphereShape3D_coin")
 [node name="CoinMesh" type="MeshInstance3D" parent="Coins/Coin3"]
 mesh = SubResource("BoxMesh_column")
 scale = Vector3(0.15, 0.15, 0.05)
-surface_material_override/0 = SubResource("ShaderMaterial_ruin")
+surface_material_override/0 = SubResource("ShaderMaterial_coin")
 
 [node name="Obstacles" type="Node3D" parent="."]
 
