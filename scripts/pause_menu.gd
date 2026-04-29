@@ -10,6 +10,8 @@ var _restart: Button
 var _settings: Button
 var _quit: Button
 var _dim: ColorRect
+var _volume_slider: HSlider
+var _volume_value: Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -104,11 +106,34 @@ func _build_ui() -> void:
 	settings_title.add_theme_font_size_override("font_size", 28)
 	settings_vbox.add_child(settings_title)
 
-	var placeholder := Label.new()
-	placeholder.text = "Volume coming soon."
-	placeholder.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	placeholder.modulate = Color(0.82, 0.86, 0.95, 0.85)
-	settings_vbox.add_child(placeholder)
+	var vol_group := VBoxContainer.new()
+	vol_group.add_theme_constant_override("separation", 6)
+	settings_vbox.add_child(vol_group)
+
+	var vol_title := Label.new()
+	vol_title.text = "Music Volume"
+	vol_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vol_title.modulate = Color(0.92, 0.94, 0.98, 0.9)
+	vol_group.add_child(vol_title)
+
+	var vol_row := HBoxContainer.new()
+	vol_row.add_theme_constant_override("separation", 10)
+	vol_group.add_child(vol_row)
+
+	_volume_slider = HSlider.new()
+	_volume_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_volume_slider.min_value = 0.0
+	_volume_slider.max_value = 1.0
+	_volume_slider.step = 0.01
+	_volume_slider.value = _get_music_volume_linear()
+	_volume_slider.value_changed.connect(_on_volume_changed)
+	vol_row.add_child(_volume_slider)
+
+	_volume_value = Label.new()
+	_volume_value.custom_minimum_size = Vector2(56, 0)
+	_volume_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	vol_row.add_child(_volume_value)
+	_update_volume_label(_volume_slider.value)
 
 	var back := Button.new()
 	back.text = "Back"
@@ -135,6 +160,29 @@ func _hide_settings() -> void:
 		_main_panel.visible = true
 	if _settings_panel:
 		_settings_panel.visible = false
+
+func _on_volume_changed(v: float) -> void:
+	_set_music_volume_linear(v)
+	_update_volume_label(v)
+
+func _update_volume_label(v: float) -> void:
+	if _volume_value == null:
+		return
+	_volume_value.text = "%d%%" % int(round(clampf(v, 0.0, 1.0) * 100.0))
+
+func _get_music_node() -> Node:
+	return get_node_or_null("/root/Music")
+
+func _get_music_volume_linear() -> float:
+	var music := _get_music_node()
+	if music != null and music.has_method("get_volume_linear"):
+		return float(music.call("get_volume_linear"))
+	return 0.85
+
+func _set_music_volume_linear(v: float) -> void:
+	var music := _get_music_node()
+	if music != null and music.has_method("set_volume_linear"):
+		music.call("set_volume_linear", v)
 
 func _make_theme() -> Theme:
 	var t := Theme.new()
