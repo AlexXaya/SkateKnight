@@ -8,11 +8,15 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Skate Knight"
-config/features=PackedStringArray("4.0")
 run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.6")
 config/icon="res://icon.svg"
 
 [display]
@@ -23,12 +27,126 @@ window/size/mode=2
 
 [input]
 
-move_left={"deadzone":0.5,"events":[{"device":-1,"keycode":65,"physical_keycode":0,"key_label":0,"unicode":97,"location":0,"modifiers":0},{"device":-1,"keycode":16777231,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"modifiers":0}]}
-move_right={"deadzone":0.5,"events":[{"device":-1,"keycode":68,"physical_keycode":0,"key_label":0,"unicode":100,"location":0,"modifiers":0},{"device":-1,"keycode":16777233,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"modifiers":0}]}
-jump={"deadzone":0.5,"events":[{"device":-1,"keycode":87,"physical_keycode":0,"key_label":0,"unicode":119,"location":0,"modifiers":0},{"device":-1,"keycode":32,"physical_keycode":0,"key_label":0,"unicode":32,"location":0,"modifiers":0},{"device":-1,"keycode":16777232,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"modifiers":0}]}
-slide={"deadzone":0.5,"events":[{"device":-1,"keycode":83,"physical_keycode":0,"key_label":0,"unicode":115,"location":0,"modifiers":0},{"device":-1,"keycode":16777234,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"modifiers":0}]}
-boost={"deadzone":0.5,"events":[{"device":-1,"keycode":16777237,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"modifiers":0},{"device":-1,"keycode":16,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"modifiers":0}]}
-pause={"deadzone":0.5,"events":[{"device":-1,"keycode":16777217,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"modifiers":0}]}
+move_left={
+"deadzone": 0.5,
+"events": [{
+"device": -1,
+"key_label": 0,
+"keycode": 65,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 97
+}, {
+"device": -1,
+"key_label": 0,
+"keycode": 16777231,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 0
+}]
+}
+move_right={
+"deadzone": 0.5,
+"events": [{
+"device": -1,
+"key_label": 0,
+"keycode": 68,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 100
+}, {
+"device": -1,
+"key_label": 0,
+"keycode": 16777233,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 0
+}]
+}
+jump={
+"deadzone": 0.5,
+"events": [{
+"device": -1,
+"key_label": 0,
+"keycode": 87,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 119
+}, {
+"device": -1,
+"key_label": 0,
+"keycode": 32,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 32
+}, {
+"device": -1,
+"key_label": 0,
+"keycode": 16777232,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 0
+}]
+}
+slide={
+"deadzone": 0.5,
+"events": [{
+"device": -1,
+"key_label": 0,
+"keycode": 83,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 115
+}, {
+"device": -1,
+"key_label": 0,
+"keycode": 16777234,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 0
+}]
+}
+boost={
+"deadzone": 0.5,
+"events": [{
+"device": -1,
+"key_label": 0,
+"keycode": 16777237,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 0
+}, {
+"device": -1,
+"key_label": 0,
+"keycode": 16,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 0
+}]
+}
+pause={
+"deadzone": 0.5,
+"events": [{
+"device": -1,
+"key_label": 0,
+"keycode": 16777217,
+"location": 0,
+"modifiers": 0,
+"physical_keycode": 0,
+"unicode": 0
+}]
+}
 
 [rendering]
 
