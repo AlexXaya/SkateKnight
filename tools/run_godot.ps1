@@ -1,16 +1,35 @@
 $ErrorActionPreference = "Stop"
 
-# Godot install folder (as requested)
-$GodotDir = "C:\Users\matth\Downloads\Godot_v4.6.2-stable_win64.exe"
+# Try common locations and PATH for a local Godot install.
+$Candidates = @(
+  $env:GODOT_EXE,
+  "C:\Users\mhink\AppData\Local\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\Godot_v4.6.2-stable_win64.exe",
+  "C:\Users\mhink\AppData\Local\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\Godot_v4.6.2-stable_win64_console.exe",
+  "C:\Users\mhink\OneDrive\Desktop\Godot_v4.5.1-stable_win64.exe",
+  "C:\Users\mhink\OneDrive\Desktop\Godot_v4.5.1-stable_win64_console.exe",
+  "C:\Users\mhink\Downloads\Godot_v4.6.2-stable_win64.exe",
+  "C:\Users\mhink\Downloads\Godot_v4.6.2-stable_win64_console.exe",
+  "C:\Users\mhink\Downloads\Godot_v4.6.1-stable_win64.exe",
+  "C:\Users\mhink\Downloads\Godot_v4.6.1-stable_win64_console.exe",
+  "C:\Users\mhink\Downloads\Godot_v4.5.1-stable_win64.exe",
+  "C:\Users\mhink\Downloads\Godot_v4.5.1-stable_win64_console.exe"
+) | Where-Object { $_ -and $_.Trim().Length -gt 0 }
 
-# Prefer GUI binary; fall back to console binary if needed.
-$GodotExe = Join-Path $GodotDir "Godot_v4.6.2-stable_win64.exe"
-if (-not (Test-Path $GodotExe)) {
-  $GodotExe = Join-Path $GodotDir "Godot_v4.6.2-stable_win64_console.exe"
+$GodotCmd = Get-Command godot -ErrorAction SilentlyContinue
+if ($GodotCmd) {
+  $Candidates = @($GodotCmd.Source) + $Candidates
 }
 
-if (-not (Test-Path $GodotExe)) {
-  throw "Godot executable not found in: $GodotDir"
+$GodotExe = $null
+foreach ($Candidate in $Candidates) {
+  if (Test-Path -LiteralPath $Candidate -PathType Leaf) {
+    $GodotExe = $Candidate
+    break
+  }
+}
+
+if (-not $GodotExe) {
+  throw "Godot executable not found. Set GODOT_EXE or install Godot in Downloads."
 }
 
 $ProjectPath = Split-Path -Parent $PSScriptRoot
