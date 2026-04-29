@@ -1,0 +1,122 @@
+[gd_scene load_steps=11 format=3 uid="uid://c0m0x6w2v2qj1"]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_1qpxk"]
+[ext_resource type="Script" path="res://scripts/chunk_spawner.gd" id="2_w5q4j"]
+[ext_resource type="PackedScene" path="res://scenes/track/chunk_straight.tscn" id="3_6j0gq"]
+[ext_resource type="Script" path="res://scripts/run_manager.gd" id="4_3x4qg"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="5_4a2m3"]
+[ext_resource type="Shader" path="res://materials/toon.gdshader" id="6_2h3to"]
+[ext_resource type="Script" path="res://scripts/camera_follow.gd" id="7_1n0cl"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6c6b8"]
+shader = ExtResource("6_2h3to")
+shader_parameter/albedo = Color(0.82, 0.84, 0.9, 1)
+shader_parameter/shadow_tint = Color(0.35, 0.33, 0.45)
+shader_parameter/shade_threshold = 0.45
+shader_parameter/shade_softness = 0.07
+shader_parameter/rim_strength = 0.45
+shader_parameter/rim_power = 3.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1x5er"]
+radius = 0.35
+height = 1.4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_7f4sd"]
+radius = 0.35
+height = 1.4
+
+[node name="Main" type="Node3D"]
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.965926, 0.12941, -0.224144, 0, 0.866025, 0.5, 0.258819, -0.482963, 0.836516, 0, 8, 0)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="Player" type="CharacterBody3D" parent="."]
+script = ExtResource("1_1qpxk")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+shape = SubResource("CapsuleShape3D_1x5er")
+
+[node name="Visual" type="Node3D" parent="Player"]
+
+[node name="Body" type="MeshInstance3D" parent="Player/Visual"]
+mesh = SubResource("CapsuleMesh_7f4sd")
+surface_material_override/0 = SubResource("ShaderMaterial_6c6b8")
+
+[node name="CameraRig" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("7_1n0cl")
+target_path = NodePath("../Player")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.0, -8.5)
+rotation_degrees = Vector3(-12, 0, 0)
+fov = 70.0
+
+[node name="ChunkSpawner" type="Node3D" parent="."]
+script = ExtResource("2_w5q4j")
+player_path = NodePath("../Player")
+chunk_scene = ExtResource("3_6j0gq")
+chunk_length = 32.0
+chunks_ahead = 10
+chunks_behind = 2
+
+[node name="RunManager" type="Node" parent="."]
+script = ExtResource("4_3x4qg")
+player_path = NodePath("../Player")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("5_4a2m3")
+run_manager_path = NodePath("../RunManager")
+
+[node name="HUD" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="Margin" type="MarginContainer" parent="HUD/HUD"]
+layout_mode = 1
+anchors_preset = 15
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 1262.0
+offset_bottom = 702.0
+
+[node name="VBox" type="VBoxContainer" parent="HUD/HUD/Margin"]
+layout_mode = 2
+
+[node name="Coins" type="Label" parent="HUD/HUD/Margin/VBox"]
+text = "Coins: 0"
+
+[node name="Score" type="Label" parent="HUD/HUD/Margin/VBox"]
+text = "Score: 0"
+
+[node name="Distance" type="Label" parent="HUD/HUD/Margin/VBox"]
+text = "Distance: 0m"
+
+[node name="GameOver" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1280.0
+offset_bottom = 720.0
+visible = false
+
+[node name="Center" type="CenterContainer" parent="HUD/GameOver"]
+layout_mode = 1
+anchors_preset = 15
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="Label" type="Label" parent="HUD/GameOver/Center"]
+text = "RUN OVER\\n(Press Esc to pause)"
+horizontal_alignment = 1
+vertical_alignment = 1
