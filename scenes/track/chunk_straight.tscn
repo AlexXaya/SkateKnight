@@ -5,8 +5,8 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("1_0gk1p")
-shader_parameter/albedo = Color(0.52, 0.52, 0.56, 1)
-shader_parameter/shadow_tint = Color(0.26, 0.24, 0.3, 1)
+shader_parameter/albedo = Color(0.24, 0.62, 0.3, 1)
+shader_parameter/shadow_tint = Color(0.14, 0.28, 0.16, 1)
 shader_parameter/shade_threshold = 0.5
 shader_parameter/shade_softness = 0.08
 shader_parameter/rim_strength = 0.15
