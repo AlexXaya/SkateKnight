@@ -1,7 +1,8 @@
-[gd_scene load_steps=13 format=3 uid="uid://b7i1myns0ck1l"]
+[gd_scene load_steps=14 format=3 uid="uid://b7i1myns0ck1l"]
 
 [ext_resource type="Shader" path="res://materials/toon.gdshader" id="1_0gk1p"]
 [ext_resource type="Script" path="res://scripts/pickup_coin.gd" id="2_oj5y5"]
+[ext_resource type="Material" path="res://materials/obstacle_red.tres" id="3_obred"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("1_0gk1p")
@@ -132,7 +133,7 @@ surface_material_override/0 = SubResource("ShaderMaterial_ruin")
 [node name="Obstacles" type="Node3D" parent="."]
 
 [node name="RubbleLow" type="StaticBody3D" parent="Obstacles"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.65, 10)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/RubbleLow"]
 shape = SubResource("BoxShape3D_low_obstacle")
@@ -140,10 +141,10 @@ shape = SubResource("BoxShape3D_low_obstacle")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/RubbleLow"]
 mesh = SubResource("BoxMesh_column")
 scale = Vector3(1.4, 0.35, 1.4)
-surface_material_override/0 = SubResource("ShaderMaterial_ruin")
+surface_material_override/0 = ExtResource("3_obred")
 
 [node name="BeamHigh" type="StaticBody3D" parent="Obstacles"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.7, 18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.7, 18)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/BeamHigh"]
 shape = SubResource("BoxShape3D_high_obstacle")
@@ -151,4 +152,26 @@ shape = SubResource("BoxShape3D_high_obstacle")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/BeamHigh"]
 mesh = SubResource("BoxMesh_column")
 scale = Vector3(1.8, 0.18, 0.8)
-surface_material_override/0 = SubResource("ShaderMaterial_ruin")
+surface_material_override/0 = ExtResource("3_obred")
+
+[node name="RubbleLow_Lane2" type="StaticBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.65, 14)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/RubbleLow_Lane2"]
+shape = SubResource("BoxShape3D_low_obstacle")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/RubbleLow_Lane2"]
+mesh = SubResource("BoxMesh_column")
+scale = Vector3(1.4, 0.35, 1.4)
+surface_material_override/0 = ExtResource("3_obred")
+
+[node name="BeamHigh_Lane3" type="StaticBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.7, 22)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/BeamHigh_Lane3"]
+shape = SubResource("BoxShape3D_high_obstacle")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/BeamHigh_Lane3"]
+mesh = SubResource("BoxMesh_column")
+scale = Vector3(1.8, 0.18, 0.8)
+surface_material_override/0 = ExtResource("3_obred")

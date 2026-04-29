@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://c0m0x6w2v2qj1"]
+[gd_scene load_steps=15 format=3 uid="uid://c0m0x6w2v2qj1"]
 
 [ext_resource type="Script" path="res://scripts/chunk_spawner.gd" id="2_w5q4j"]
 [ext_resource type="PackedScene" path="res://scenes/track/chunk_straight.tscn" id="3_6j0gq"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/input_setup.gd" id="9_inputsetup"]
 [ext_resource type="Script" path="res://scripts/pause_menu.gd" id="10_pausemenu"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="8_3p0h1"]
+[ext_resource type="Material" path="res://materials/obstacle_red.tres" id="10_obred"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6c6b8"]
 shader = ExtResource("6_2h3to")
@@ -18,15 +19,6 @@ shader_parameter/shadow_tint = Color(0.35, 0.33, 0.45, 1)
 shader_parameter/shade_threshold = 0.45
 shader_parameter/shade_softness = 0.07
 shader_parameter/rim_strength = 0.45
-shader_parameter/rim_power = 3.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_cub"]
-shader = ExtResource("6_2h3to")
-shader_parameter/albedo = Color(0.9, 0.45, 0.25, 1)
-shader_parameter/shadow_tint = Color(0.35, 0.18, 0.12, 1)
-shader_parameter/shade_threshold = 0.5
-shader_parameter/shade_softness = 0.08
-shader_parameter/rim_strength = 0.35
 shader_parameter/rim_power = 3.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cub"]
@@ -57,7 +49,7 @@ shape = SubResource("BoxShape3D_cub")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Cub"]
 mesh = SubResource("BoxMesh_cub")
-surface_material_override/0 = SubResource("ShaderMaterial_cub")
+surface_material_override/0 = ExtResource("10_obred")
 
 [node name="Player" parent="." instance=ExtResource("8_3p0h1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
