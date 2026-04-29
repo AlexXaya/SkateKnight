@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://c0m0x6w2v2qj1"]
+[gd_scene load_steps=14 format=3 uid="uid://c0m0x6w2v2qj1"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_1qpxk"]
 [ext_resource type="Script" path="res://scripts/chunk_spawner.gd" id="2_w5q4j"]
@@ -17,6 +17,15 @@ shader_parameter/shade_softness = 0.07
 shader_parameter/rim_strength = 0.45
 shader_parameter/rim_power = 3.0
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cub"]
+shader = ExtResource("6_2h3to")
+shader_parameter/albedo = Color(0.9, 0.45, 0.25, 1)
+shader_parameter/shadow_tint = Color(0.35, 0.18, 0.12)
+shader_parameter/shade_threshold = 0.5
+shader_parameter/shade_softness = 0.08
+shader_parameter/rim_strength = 0.35
+shader_parameter/rim_power = 3.0
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1x5er"]
 radius = 0.35
 height = 1.4
@@ -24,6 +33,12 @@ height = 1.4
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_7f4sd"]
 radius = 0.35
 height = 1.4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cub"]
+size = Vector3(1.25, 1.25, 1.25)
+
+[sub_resource type="BoxMesh" id="BoxMesh_cub"]
+size = Vector3(1.25, 1.25, 1.25)
 
 [node name="Main" type="Node3D"]
 
@@ -33,6 +48,18 @@ light_energy = 1.1
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="Cub" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.625, 10)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cub"]
+shape = SubResource("BoxShape3D_cub")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Cub"]
+mesh = SubResource("BoxMesh_cub")
+surface_material_override/0 = SubResource("ShaderMaterial_cub")
 
 [node name="Player" type="CharacterBody3D" parent="."]
 script = ExtResource("1_1qpxk")
