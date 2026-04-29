@@ -9,6 +9,7 @@ signal coin_collected(amount: int)
 @export var forward_speed: float = 14.0
 @export var max_forward_speed: float = 28.0
 @export var forward_accel: float = 0.15
+@export var invert_lane_controls: bool = false
 
 @export var jump_velocity: float = 9.5
 @export var gravity: float = 22.0
@@ -58,10 +59,11 @@ func _physics_process(delta: float) -> void:
 		break
 
 func _handle_input(delta: float) -> void:
+	var dir := -1 if not invert_lane_controls else 1
 	if Input.is_action_just_pressed("move_left"):
-		_set_lane(_lane_index - 1)
+		_set_lane(_lane_index + dir)
 	if Input.is_action_just_pressed("move_right"):
-		_set_lane(_lane_index + 1)
+		_set_lane(_lane_index - dir)
 
 	if Input.is_action_just_pressed("jump") and is_on_floor() and not _is_sliding:
 		velocity.y = jump_velocity

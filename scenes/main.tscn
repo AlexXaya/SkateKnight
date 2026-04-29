@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c0m0x6w2v2qj1"]
+[gd_scene load_steps=16 format=3 uid="uid://c0m0x6w2v2qj1"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_1qpxk"]
 [ext_resource type="Script" path="res://scripts/chunk_spawner.gd" id="2_w5q4j"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://scripts/hud.gd" id="5_4a2m3"]
 [ext_resource type="Shader" path="res://materials/toon.gdshader" id="6_2h3to"]
 [ext_resource type="Script" path="res://scripts/camera_follow.gd" id="7_1n0cl"]
+[ext_resource type="Script" path="res://scripts/input_debug.gd" id="8_inputdbg"]
+[ext_resource type="Script" path="res://scripts/input_setup.gd" id="9_inputsetup"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6c6b8"]
 shader = ExtResource("6_2h3to")
@@ -49,8 +51,11 @@ shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 
+[node name="InputSetup" type="Node" parent="."]
+script = ExtResource("9_inputsetup")
+
 [node name="Cub" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.625, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.125, 20)
 collision_layer = 1
 collision_mask = 1
 
@@ -64,6 +69,7 @@ surface_material_override/0 = SubResource("ShaderMaterial_cub")
 [node name="Player" type="CharacterBody3D" parent="."]
 script = ExtResource("1_1qpxk")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+invert_lane_controls = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 shape = SubResource("CapsuleShape3D_1x5er")
@@ -78,10 +84,11 @@ surface_material_override/0 = SubResource("ShaderMaterial_6c6b8")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("7_1n0cl")
 target_path = NodePath("../Player")
+offset = Vector3(0, 0, 0)
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.0, -8.5)
-rotation_degrees = Vector3(-12, 0, 0)
+rotation_degrees = Vector3(-12, 180, 0)
 fov = 70.0
 
 [node name="ChunkSpawner" type="Node3D" parent="."]
@@ -99,6 +106,9 @@ player_path = NodePath("../Player")
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("5_4a2m3")
 run_manager_path = NodePath("../RunManager")
+
+[node name="InputDebug" type="CanvasLayer" parent="."]
+script = ExtResource("8_inputdbg")
 
 [node name="HUD" type="Control" parent="HUD"]
 layout_mode = 3
