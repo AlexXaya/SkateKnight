@@ -79,13 +79,13 @@ process_mode = 1
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("7_1n0cl")
 target_path = NodePath("../Player")
-offset = Vector3(0, 0, 0)
+offset = Vector3(0, 4, -13)
 process_mode = 1
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.0, -8.5)
-rotation_degrees = Vector3(-12, 180, 0)
-fov = 70.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+rotation_degrees = Vector3(-18, 180, 0)
+fov = 80.0
 
 [node name="ChunkSpawner" type="Node3D" parent="."]
 script = ExtResource("2_w5q4j")
