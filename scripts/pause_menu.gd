@@ -1,6 +1,8 @@
 extends CanvasLayer
 
 @export var pause_action: StringName = &"pause"
+@export var ui_shift_x: float = 0.0
+@export var hide_pause_ui_temp: bool = false
 
 var _root: Control
 var _main_panel: Control
@@ -40,6 +42,8 @@ func _build_ui() -> void:
 	var center := CenterContainer.new()
 	center.anchor_right = 1.0
 	center.anchor_bottom = 1.0
+	center.offset_left = ui_shift_x
+	center.offset_right = ui_shift_x
 	_root.add_child(center)
 
 	var panel := PanelContainer.new()
@@ -142,12 +146,16 @@ func _build_ui() -> void:
 
 func _set_paused(paused: bool) -> void:
 	get_tree().paused = paused
-	_root.visible = paused
+	_root.visible = paused and not hide_pause_ui_temp
 	if not paused:
 		_hide_settings()
-	Input.mouse_mode = (Input.MOUSE_MODE_VISIBLE if paused else Input.MOUSE_MODE_CAPTURED)
 	if paused:
-		_animate_open()
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if paused:
+		if not hide_pause_ui_temp:
+			_animate_open()
 
 func _show_settings() -> void:
 	if _main_panel:

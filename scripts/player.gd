@@ -22,6 +22,8 @@ var _target_x := 0.0
 var _slide_t := 0.0
 var _is_sliding := false
 var _capsule_height_default := 0.0
+var _last_crash_ms: int = -1000000
+@export var crash_debounce_ms: int = 800
 
 @onready var _collider: CollisionShape3D = $CollisionShape3D
 @onready var _visual: Node3D = $Visual
@@ -55,8 +57,28 @@ func _physics_process(delta: float) -> void:
 		# If we’re grounded and had a positive Y velocity, it was a landing; don’t crash.
 		if is_on_floor() and prev_vel_y > 0.0:
 			continue
-		crashed.emit()
+
+		# Some obstacles should disappear on hit to prevent "stuck" collisions.
+		_try_despawn_on_hit(col)
+
+		var now_ms := Time.get_ticks_msec()
+		if now_ms - _last_crash_ms >= crash_debounce_ms:
+			_last_crash_ms = now_ms
+			crashed.emit()
 		break
+
+func _try_despawn_on_hit(col) -> void:
+	var obj = col.get_collider()
+	var node := obj as Node
+	if node == null:
+		return
+
+	# Walk up to find a tagged parent (e.g. collider could be a child).
+	while node != null:
+		if node.is_in_group("despawn_on_hit"):
+			node.queue_free()
+			return
+		node = node.get_parent()
 
 func _handle_input(delta: float) -> void:
 	var dir := -1 if not invert_lane_controls else 1
@@ -107,4 +129,3 @@ func _end_slide() -> void:
 
 func add_coins(amount: int) -> void:
 	coin_collected.emit(amount)
-
