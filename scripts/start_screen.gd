@@ -15,6 +15,7 @@ var _music_slider: HSlider
 var _music_value: Label
 var _sfx_slider: HSlider
 var _sfx_value: Label
+var _theme: Theme
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -85,9 +86,12 @@ func _build_ui() -> void:
 	layer.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(layer)
 
+	_theme = _make_theme()
+
 	_ui_root = Control.new()
 	_ui_root.anchor_right = 1.0
 	_ui_root.anchor_bottom = 1.0
+	_ui_root.theme = _theme
 	layer.add_child(_ui_root)
 
 	var dim := ColorRect.new()
@@ -110,6 +114,9 @@ func _build_ui() -> void:
 	title.text = "SKATE KNIGHT"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 52)
+	var bold_font := _load_font_or_null("res://ui/fonts/Cinzel-Bold.ttf")
+	if bold_font != null:
+		title.add_theme_font_override("font", bold_font)
 	stack.add_child(title)
 
 	var subtitle := Label.new()
@@ -176,6 +183,8 @@ func _build_ui() -> void:
 	set_title.text = "SETTINGS"
 	set_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	set_title.add_theme_font_size_override("font_size", 28)
+	if bold_font != null:
+		set_title.add_theme_font_override("font", bold_font)
 	set_v.add_child(set_title)
 
 	# Music
@@ -245,6 +254,132 @@ func _build_ui() -> void:
 	back_btn.focus_mode = Control.FOCUS_NONE
 	back_btn.pressed.connect(_hide_settings)
 	set_v.add_child(back_btn)
+
+func _make_theme() -> Theme:
+	var t := Theme.new()
+
+	var font_regular := _load_font_or_null("res://ui/fonts/Cinzel-Regular.ttf")
+	if font_regular != null:
+		t.set_font("font", "Label", font_regular)
+		t.set_font("font", "Button", font_regular)
+
+	# Typography
+	t.set_font_size("font_size", "Label", 18)
+	t.set_font_size("font_size", "Button", 18)
+
+	# Colors
+	t.set_color("font_color", "Label", Color(0.94, 0.97, 1.0))
+	t.set_color("font_outline_color", "Label", Color(0.04, 0.05, 0.08, 1.0))
+	t.set_constant("outline_size", "Label", 4)
+	t.set_color("font_shadow_color", "Label", Color(0, 0, 0, 0.55))
+	t.set_constant("shadow_offset_x", "Label", 2)
+	t.set_constant("shadow_offset_y", "Label", 2)
+
+	t.set_color("font_color", "Button", Color(0.94, 0.97, 1.0))
+	t.set_color("font_hover_color", "Button", Color(1, 1, 1))
+	t.set_color("font_pressed_color", "Button", Color(0.9, 0.95, 1.0))
+
+	# Panels
+	t.set_stylebox("panel", "PanelContainer", _make_panel_stylebox())
+
+	# Buttons
+	var btn_normal := StyleBoxFlat.new()
+	btn_normal.bg_color = Color(0.12, 0.1, 0.08, 0.96) # dark "wood"
+	btn_normal.border_color = Color(0.78, 0.62, 0.28, 1.0) # brass
+	btn_normal.border_width_left = 2
+	btn_normal.border_width_top = 2
+	btn_normal.border_width_right = 2
+	btn_normal.border_width_bottom = 2
+	btn_normal.corner_radius_top_left = 14
+	btn_normal.corner_radius_top_right = 14
+	btn_normal.corner_radius_bottom_left = 14
+	btn_normal.corner_radius_bottom_right = 14
+	btn_normal.content_margin_left = 14
+	btn_normal.content_margin_right = 14
+	btn_normal.content_margin_top = 10
+	btn_normal.content_margin_bottom = 10
+	btn_normal.shadow_color = Color(0, 0, 0, 0.45)
+	btn_normal.shadow_size = 8
+	btn_normal.shadow_offset = Vector2(0, 4)
+
+	var btn_hover := btn_normal.duplicate()
+	btn_hover.bg_color = Color(0.16, 0.13, 0.1, 1.0)
+	btn_hover.border_color = Color(0.92, 0.78, 0.38, 1.0)
+
+	var btn_pressed := btn_normal.duplicate()
+	btn_pressed.bg_color = Color(0.08, 0.07, 0.06, 1.0)
+	btn_pressed.border_color = Color(0.92, 0.78, 0.38, 1.0)
+
+	t.set_stylebox("normal", "Button", btn_normal)
+	t.set_stylebox("hover", "Button", btn_hover)
+	t.set_stylebox("pressed", "Button", btn_pressed)
+	t.set_stylebox("focus", "Button", StyleBoxEmpty.new())
+
+	return t
+
+func _load_font_or_null(path: String) -> Font:
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return null
+	var f := load(path) as Font
+	return f
+
+func _make_panel_stylebox() -> StyleBox:
+	var tex := _make_panel_texture(128)
+	var sb := StyleBoxTexture.new()
+	sb.texture = tex
+	sb.draw_center = true
+	sb.texture_margin_left = 18
+	sb.texture_margin_top = 18
+	sb.texture_margin_right = 18
+	sb.texture_margin_bottom = 18
+	sb.content_margin_left = 18
+	sb.content_margin_top = 16
+	sb.content_margin_right = 18
+	sb.content_margin_bottom = 16
+	return sb
+
+func _make_panel_texture(size: int) -> Texture2D:
+	size = clampi(size, 32, 256)
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+
+	var noise := FastNoiseLite.new()
+	noise.seed = 1337
+	noise.frequency = 0.055
+	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+
+	var border := int(round(size * 0.09))
+	border = clampi(border, 3, 16)
+	var brass := Color(0.88, 0.74, 0.38, 1.0)
+	var brass_dark := Color(0.55, 0.42, 0.18, 1.0)
+	var paper_a := Color(0.92, 0.86, 0.7, 0.92)
+	var paper_b := Color(0.82, 0.74, 0.55, 0.92)
+
+	for y in range(size):
+		for x in range(size):
+			var u := float(x) / float(size - 1)
+			var v := float(y) / float(size - 1)
+			var n := (noise.get_noise_2d(x, y) * 0.5 + 0.5)
+			var base := paper_a.lerp(paper_b, n)
+
+			var dx := absf(u - 0.5) * 2.0
+			var dy := absf(v - 0.5) * 2.0
+			var vig := clampf(1.0 - (dx * dx + dy * dy) * 0.22, 0.72, 1.0)
+			base.r *= vig
+			base.g *= vig
+			base.b *= vig
+
+			var is_border := (x < border or y < border or x >= size - border or y >= size - border)
+			if is_border:
+				var t := clampf(float(min(min(x, y), min(size - 1 - x, size - 1 - y))) / float(border), 0.0, 1.0)
+				var bcol := brass_dark.lerp(brass, t)
+				if x < border or y < border:
+					bcol = bcol.lerp(Color(1, 0.93, 0.6, 1.0), 0.25)
+				img.set_pixel(x, y, bcol)
+			else:
+				img.set_pixel(x, y, base)
+
+	var tex := ImageTexture.create_from_image(img)
+	return tex
 
 func _start_game() -> void:
 	if _started:
