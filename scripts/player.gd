@@ -89,6 +89,9 @@ func _handle_input(delta: float) -> void:
 
 	if Input.is_action_just_pressed("jump") and is_on_floor() and not _is_sliding:
 		velocity.y = jump_velocity
+		var sfx := get_node_or_null("/root/Sfx")
+		if sfx != null and sfx.has_method("play_jump"):
+			sfx.call("play_jump")
 
 	if Input.is_action_just_pressed("slide") and is_on_floor() and not _is_sliding:
 		_begin_slide()
