@@ -1,6 +1,9 @@
 [gd_resource type="Environment" format=3 uid="uid://d1q7x8n0s2f2k"]
 
+[ext_resource type="Texture2D" uid="uid://dj8galciwu225" path="res://assets/hdri/roofless_ruins_4k.hdr" id="1_hdri"]
+
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_1"]
+panorama = ExtResource("1_hdri")
 
 [sub_resource type="Sky" id="Sky_1"]
 sky_material = SubResource("PanoramaSkyMaterial_1")
