@@ -184,7 +184,7 @@ surface_material_override/0 = SubResource("ShaderMaterial_coin")
 [node name="Obstacles" type="Node3D" parent="."]
 
 [node name="RubbleLow" type="StaticBody3D" parent="Obstacles"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.02, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.02, 6)
 groups=["despawn_on_hit"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/RubbleLow"]
@@ -199,7 +199,7 @@ extra_cull_margin = 8.0
 surface_material_override/0 = ExtResource("3_obred")
 
 [node name="BeamHigh" type="StaticBody3D" parent="Obstacles"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.7, 18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.5, 18)
 groups=["despawn_on_hit"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/BeamHigh"]
@@ -214,7 +214,7 @@ extra_cull_margin = 8.0
 surface_material_override/0 = ExtResource("3_obred")
 
 [node name="RubbleLow_Lane2" type="StaticBody3D" parent="Obstacles"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.02, 14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.02, 22)
 groups=["despawn_on_hit"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/RubbleLow_Lane2"]
@@ -229,7 +229,7 @@ extra_cull_margin = 8.0
 surface_material_override/0 = ExtResource("3_obred")
 
 [node name="BeamHigh_Lane3" type="StaticBody3D" parent="Obstacles"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.7, 22)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.5, 30)
 groups=["despawn_on_hit"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/BeamHigh_Lane3"]

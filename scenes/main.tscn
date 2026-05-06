@@ -53,6 +53,7 @@ script = ExtResource("9_inputsetup")
 
 [node name="Player" parent="." instance=ExtResource("8_3p0h1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
+rotation_degrees = Vector3(0, 90, 0)
 invert_lane_controls = true
 process_mode = 1
 

@@ -7,6 +7,7 @@ func _ready() -> void:
 	_ensure_action_keys("slide", [KEY_S, KEY_DOWN])
 	_ensure_action_keys("boost", [KEY_SHIFT, KEY_KP_0]) # second key is just a fallback
 	_ensure_action_keys("pause", [KEY_ESCAPE])
+	_ensure_action_keys("debug_toggle_invulnerable", [KEY_G])
 
 func _ensure_action_keys(action: StringName, keycodes: Array[int]) -> void:
 	if not InputMap.has_action(action):
