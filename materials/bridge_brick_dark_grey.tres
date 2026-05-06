@@ -1,0 +1,19 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bridgebrickdarkgrey0001"]
+
+[ext_resource type="Shader" path="res://materials/bridge_brick_dark_grey.gdshader" id="1_brick"]
+
+[resource]
+shader = ExtResource("1_brick")
+shader_parameter/shadow_tint = Vector3(0.22, 0.22, 0.26)
+shader_parameter/shade_threshold = 0.52
+shader_parameter/shade_softness = 0.08
+shader_parameter/rim_strength = 0.16
+shader_parameter/rim_power = 3.0
+shader_parameter/brick_color = Color(0.22, 0.22, 0.24, 1)
+shader_parameter/brick_color_alt = Color(0.18, 0.18, 0.2, 1)
+shader_parameter/mortar_color = Color(0.09, 0.095, 0.11, 1)
+shader_parameter/uv_scale = 6.5
+shader_parameter/brick_size = Vector2(2, 1)
+shader_parameter/mortar_thickness = 0.06
+shader_parameter/edge_softness = 0.03
+

@@ -1,10 +1,30 @@
 [gd_resource type="Environment" format=3 uid="uid://d1q7x8n0s2f2k"]
 
+[ext_resource type="Texture2D" path="res://assets/hdri/roofless_ruins_4k.hdr" id="1_hdri"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_1"]
+panorama = ExtResource("1_hdri")
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("PanoramaSkyMaterial_1")
+
 [resource]
 background_mode = 2
+background_sky = SubResource("Sky_1")
+background_sky_custom_fov = 70.0
 background_color = Color(0.0705882, 0.0901961, 0.129412, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.3, 0.3, 0.35, 1)
 fog_enabled = true
 fog_light_color = Color(0.55, 0.55, 0.6, 1)
-fog_density = 0.006
+fog_mode = 1
+fog_density = 0.95
+fog_depth_begin = 18.0
+fog_depth_end = 85.0
+fog_aerial_perspective = 0.85
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.015
+volumetric_fog_albedo = Color(0.85, 0.9, 1, 1)
+volumetric_fog_anisotropy = 0.35
+volumetric_fog_length = 96.0
+volumetric_fog_sky_affect = 0.75
