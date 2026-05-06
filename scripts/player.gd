@@ -80,6 +80,9 @@ func _physics_process(delta: float) -> void:
 		var now_ms := Time.get_ticks_msec()
 		if now_ms - _last_crash_ms >= crash_debounce_ms:
 			_last_crash_ms = now_ms
+			var sfx := get_node_or_null("/root/Sfx")
+			if sfx != null and sfx.has_method("play_hurt"):
+				sfx.call("play_hurt")
 			crashed.emit()
 		break
 
@@ -139,6 +142,9 @@ func _current_forward_speed() -> float:
 func _begin_slide() -> void:
 	_is_sliding = true
 	_slide_t = slide_duration_s
+	var sfx := get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play_slide"):
+		sfx.call("play_slide")
 	# Scale visuals and collider to fit under “high” obstacles.
 	_visual.scale.y = slide_height_scale
 	var shape := _collider.shape

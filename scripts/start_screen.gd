@@ -23,7 +23,9 @@ func _ready() -> void:
 
 	# Ensure music is playing on the menu.
 	var music := get_node_or_null("/root/Music")
-	if music != null and music.has_method("play"):
+	if music != null and music.has_method("play_start_screen"):
+		music.call("play_start_screen")
+	elif music != null and music.has_method("play"):
 		music.call("play")
 
 	_spawn_preview()
@@ -387,6 +389,9 @@ func _start_game() -> void:
 	_started = true
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	get_tree().paused = false
+	var music := get_node_or_null("/root/Music")
+	if music != null and music.has_method("play_gameplay"):
+		music.call("play_gameplay")
 	get_tree().change_scene_to_file(game_scene_path)
 
 func _show_settings() -> void:

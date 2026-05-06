@@ -86,9 +86,11 @@ func _on_run_over() -> void:
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-	# Stop background music (we'll add game-over music later).
+	# Switch to game-over music.
 	var music := get_node_or_null("/root/Music")
-	if music != null and music.has_method("stop"):
+	if music != null and music.has_method("play_game_over"):
+		music.call("play_game_over")
+	elif music != null and music.has_method("stop"):
 		music.call("stop")
 
 	# Prevent pause menu from interfering while game over is shown.
@@ -361,9 +363,9 @@ func _build_game_over_ui() -> void:
 	restart.focus_mode = Control.FOCUS_ALL
 	restart.pressed.connect(func():
 		var music := get_node_or_null("/root/Music")
-		if music != null and music.has_method("stop"):
-			music.call("stop")
-		if music != null and music.has_method("play"):
+		if music != null and music.has_method("play_gameplay"):
+			music.call("play_gameplay")
+		elif music != null and music.has_method("play"):
 			music.call("play")
 		get_tree().paused = false
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -377,6 +379,9 @@ func _build_game_over_ui() -> void:
 	main_menu.pressed.connect(func():
 		get_tree().paused = false
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		var music := get_node_or_null("/root/Music")
+		if music != null and music.has_method("play_start_screen"):
+			music.call("play_start_screen")
 		get_tree().change_scene_to_file("res://scenes/start_screen.tscn")
 	)
 	v.add_child(main_menu)

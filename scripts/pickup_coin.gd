@@ -25,6 +25,9 @@ func _collect(body: Node) -> void:
 		return
 	if body.has_method("add_coins"):
 		body.call("add_coins", amount)
+		var sfx := get_node_or_null("/root/Sfx")
+		if sfx != null and sfx.has_method("play_coin_pickup"):
+			sfx.call("play_coin_pickup")
 		_collected = true
 		queue_free()
 

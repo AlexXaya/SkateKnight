@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" format=3 uid="uid://bridgebrickdarkgrey0001"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://c7tn8go0eh33y"]
 
 [ext_resource type="Shader" path="res://materials/bridge_brick_dark_grey.gdshader" id="1_brick"]
 
