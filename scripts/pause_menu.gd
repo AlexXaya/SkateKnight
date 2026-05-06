@@ -7,11 +7,14 @@ var _main_panel: Control
 var _settings_panel: Control
 var _resume: Button
 var _restart: Button
+var _main_menu: Button
 var _settings: Button
 var _quit: Button
 var _dim: ColorRect
-var _volume_slider: HSlider
-var _volume_value: Label
+var _music_slider: HSlider
+var _music_value: Label
+var _sfx_slider: HSlider
+var _sfx_value: Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -81,6 +84,14 @@ func _build_ui() -> void:
 	)
 	vbox.add_child(_restart)
 
+	_main_menu = Button.new()
+	_main_menu.text = "Main Menu"
+	_main_menu.pressed.connect(func():
+		_set_paused(false)
+		get_tree().change_scene_to_file("res://scenes/start_screen.tscn")
+	)
+	vbox.add_child(_main_menu)
+
 	_settings = Button.new()
 	_settings.text = "Settings"
 	_settings.pressed.connect(_show_settings)
@@ -120,20 +131,49 @@ func _build_ui() -> void:
 	vol_row.add_theme_constant_override("separation", 10)
 	vol_group.add_child(vol_row)
 
-	_volume_slider = HSlider.new()
-	_volume_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_volume_slider.min_value = 0.0
-	_volume_slider.max_value = 1.0
-	_volume_slider.step = 0.01
-	_volume_slider.value = _get_music_volume_linear()
-	_volume_slider.value_changed.connect(_on_volume_changed)
-	vol_row.add_child(_volume_slider)
+	_music_slider = HSlider.new()
+	_music_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_music_slider.min_value = 0.0
+	_music_slider.max_value = 1.0
+	_music_slider.step = 0.01
+	_music_slider.value = _get_music_volume_linear()
+	_music_slider.value_changed.connect(_on_music_volume_changed)
+	vol_row.add_child(_music_slider)
 
-	_volume_value = Label.new()
-	_volume_value.custom_minimum_size = Vector2(56, 0)
-	_volume_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	vol_row.add_child(_volume_value)
-	_update_volume_label(_volume_slider.value)
+	_music_value = Label.new()
+	_music_value.custom_minimum_size = Vector2(56, 0)
+	_music_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	vol_row.add_child(_music_value)
+	_update_music_label(_music_slider.value)
+
+	var sfx_group := VBoxContainer.new()
+	sfx_group.add_theme_constant_override("separation", 6)
+	settings_vbox.add_child(sfx_group)
+
+	var sfx_title := Label.new()
+	sfx_title.text = "SFX Volume"
+	sfx_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sfx_title.modulate = Color(0.92, 0.94, 0.98, 0.9)
+	sfx_group.add_child(sfx_title)
+
+	var sfx_row := HBoxContainer.new()
+	sfx_row.add_theme_constant_override("separation", 10)
+	sfx_group.add_child(sfx_row)
+
+	_sfx_slider = HSlider.new()
+	_sfx_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_sfx_slider.min_value = 0.0
+	_sfx_slider.max_value = 1.0
+	_sfx_slider.step = 0.01
+	_sfx_slider.value = _get_sfx_volume_linear()
+	_sfx_slider.value_changed.connect(_on_sfx_volume_changed)
+	sfx_row.add_child(_sfx_slider)
+
+	_sfx_value = Label.new()
+	_sfx_value.custom_minimum_size = Vector2(56, 0)
+	_sfx_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	sfx_row.add_child(_sfx_value)
+	_update_sfx_label(_sfx_slider.value)
 
 	var back := Button.new()
 	back.text = "Back"
@@ -161,17 +201,29 @@ func _hide_settings() -> void:
 	if _settings_panel:
 		_settings_panel.visible = false
 
-func _on_volume_changed(v: float) -> void:
+func _on_music_volume_changed(v: float) -> void:
 	_set_music_volume_linear(v)
-	_update_volume_label(v)
+	_update_music_label(v)
 
-func _update_volume_label(v: float) -> void:
-	if _volume_value == null:
+func _on_sfx_volume_changed(v: float) -> void:
+	_set_sfx_volume_linear(v)
+	_update_sfx_label(v)
+
+func _update_music_label(v: float) -> void:
+	if _music_value == null:
 		return
-	_volume_value.text = "%d%%" % int(round(clampf(v, 0.0, 1.0) * 100.0))
+	_music_value.text = "%d%%" % int(round(clampf(v, 0.0, 1.0) * 100.0))
+
+func _update_sfx_label(v: float) -> void:
+	if _sfx_value == null:
+		return
+	_sfx_value.text = "%d%%" % int(round(clampf(v, 0.0, 1.0) * 100.0))
 
 func _get_music_node() -> Node:
 	return get_node_or_null("/root/Music")
+
+func _get_sfx_node() -> Node:
+	return get_node_or_null("/root/Sfx")
 
 func _get_music_volume_linear() -> float:
 	var music := _get_music_node()
@@ -183,6 +235,17 @@ func _set_music_volume_linear(v: float) -> void:
 	var music := _get_music_node()
 	if music != null and music.has_method("set_volume_linear"):
 		music.call("set_volume_linear", v)
+
+func _get_sfx_volume_linear() -> float:
+	var sfx := _get_sfx_node()
+	if sfx != null and sfx.has_method("get_volume_linear"):
+		return float(sfx.call("get_volume_linear"))
+	return 0.9
+
+func _set_sfx_volume_linear(v: float) -> void:
+	var sfx := _get_sfx_node()
+	if sfx != null and sfx.has_method("set_volume_linear"):
+		sfx.call("set_volume_linear", v)
 
 func _make_theme() -> Theme:
 	var t := Theme.new()
