@@ -33,6 +33,7 @@ const POWERUP_TYPES: Array[String] = ["magnet", "invincible", "double"]
 const POWERUP_MAT_BLUE := preload("res://materials/powerup_glow_blue.tres")
 const POWERUP_MAT_GREEN := preload("res://materials/powerup_glow_green.tres")
 const POWERUP_MAT_ORANGE := preload("res://materials/powerup_glow_orange.tres")
+const POWERUP_MAGNET_SCENE := preload("res://scenes/props/magnet_u.tscn")
 
 func _ready() -> void:
 	_player = get_node(player_path) as Node3D
@@ -272,13 +273,22 @@ func _spawn_powerup() -> void:
 	collision.shape = shape
 	area.add_child(collision)
 
-	var mesh := MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = 0.45
-	sphere.height = 0.9
-	mesh.mesh = sphere
-	mesh.material_override = _powerup_material(powerup_type)
-	area.add_child(mesh)
+	var visual := Node3D.new()
+	visual.name = "Visual"
+	area.add_child(visual)
+
+	if powerup_type == "magnet" and POWERUP_MAGNET_SCENE != null:
+		var magnet := POWERUP_MAGNET_SCENE.instantiate() as Node3D
+		visual.add_child(magnet)
+	else:
+		var mesh := MeshInstance3D.new()
+		mesh.name = "Mesh"
+		var sphere := SphereMesh.new()
+		sphere.radius = 0.45
+		sphere.height = 0.9
+		mesh.mesh = sphere
+		mesh.material_override = _powerup_material(powerup_type)
+		visual.add_child(mesh)
 
 func _powerup_material(powerup_type: String) -> Material:
 	match powerup_type:

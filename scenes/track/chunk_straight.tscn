@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/pickup_coin.gd" id="2_oj5y5"]
 [ext_resource type="Material" path="res://materials/obstacle_red.tres" id="3_obred"]
 [ext_resource type="PackedScene" path="res://scenes/props/barrel.tscn" id="6_barrel"]
+[ext_resource type="PackedScene" path="res://scenes/props/roman_column_broken.tscn" id="7_roman_column"]
 [ext_resource type="Material" path="res://materials/bridge_brick_dark_grey.tres" id="5_bridge_stone"]
 [ext_resource type="Material" path="res://materials/obstacle_red_glow.tres" id="4_obred_glow"]
 
@@ -224,9 +225,11 @@ shape = SubResource("BoxShape3D_high_obstacle")
 mesh = SubResource("BoxMesh_column")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
 scale = Vector3(1.8, 0.18, 0.8)
-ignore_occlusion_culling = true
-extra_cull_margin = 8.0
-surface_material_override/0 = ExtResource("3_obred")
+visible = false
+
+[node name="RomanColumn" parent="Obstacles/BeamHigh" instance=ExtResource("7_roman_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
+scale = Vector3(1.05, 0.7, 0.7)
 
 [node name="RubbleLow_Lane2" type="StaticBody3D" parent="Obstacles"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.02, 22)
@@ -257,6 +260,8 @@ shape = SubResource("BoxShape3D_high_obstacle")
 mesh = SubResource("BoxMesh_column")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
 scale = Vector3(1.8, 0.18, 0.8)
-ignore_occlusion_culling = true
-extra_cull_margin = 8.0
-surface_material_override/0 = ExtResource("3_obred")
+visible = false
+
+[node name="RomanColumn" parent="Obstacles/BeamHigh_Lane3" instance=ExtResource("7_roman_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
+scale = Vector3(1.05, 0.7, 0.7)
