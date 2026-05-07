@@ -2,6 +2,7 @@ extends Area3D
 
 @export var amount: int = 1
 @export var collect_radius: float = 0.9
+@export var spin_speed_rad_s: float = 6.0
 var _collected := false
 
 func _ready() -> void:
@@ -14,6 +15,11 @@ func _on_body_entered(body: Node) -> void:
 func _process(_delta: float) -> void:
 	if _collected:
 		return
+
+	var mesh := get_node_or_null("CoinMesh") as Node3D
+	if mesh != null and spin_speed_rad_s != 0.0:
+		mesh.rotate_y(spin_speed_rad_s * _delta)
+
 	var player := get_tree().get_first_node_in_group("player") as Node3D
 	if player == null:
 		return

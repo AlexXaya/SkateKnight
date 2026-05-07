@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://barrelwoodglow0001"]
+
+[ext_resource type="Shader" path="res://materials/barrel_wood_glow.gdshader" id="1_barrelwood"]
+
+[resource]
+shader = ExtResource("1_barrelwood")
+shader_parameter/shadow_tint = Vector3(0.28, 0.22, 0.16)
+shader_parameter/shade_threshold = 0.5
+shader_parameter/shade_softness = 0.08
+shader_parameter/wood_light = Color(0.45, 0.3, 0.18, 1)
+shader_parameter/wood_dark = Color(0.28, 0.18, 0.1, 1)
+shader_parameter/wood_scale = 6.0
+shader_parameter/grain_strength = 0.7
+shader_parameter/glow_color = Vector3(1, 0.12, 0.12)
+shader_parameter/glow_strength = 7.5
+shader_parameter/glow_width = 2.2
+

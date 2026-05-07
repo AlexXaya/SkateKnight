@@ -3,7 +3,9 @@
 [ext_resource type="Shader" path="res://materials/toon.gdshader" id="1_0gk1p"]
 [ext_resource type="Script" path="res://scripts/pickup_coin.gd" id="2_oj5y5"]
 [ext_resource type="Material" path="res://materials/obstacle_red.tres" id="3_obred"]
+[ext_resource type="PackedScene" path="res://scenes/props/barrel.tscn" id="6_barrel"]
 [ext_resource type="Material" path="res://materials/bridge_brick_dark_grey.tres" id="5_bridge_stone"]
+[ext_resource type="Material" path="res://materials/obstacle_red_glow.tres" id="4_obred_glow"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("1_0gk1p")
@@ -67,6 +69,15 @@ size = Vector3(0.16, 0.02, 32)
 
 [sub_resource type="BoxMesh" id="BoxMesh_column"]
 size = Vector3(0.9, 3.0, 0.9)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ob_piece"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_coin"]
+top_radius = 0.28
+bottom_radius = 0.28
+height = 0.08
+radial_segments = 22
 
 [node name="ChunkStraight" type="Node3D"]
 
@@ -154,8 +165,8 @@ script = ExtResource("2_oj5y5")
 shape = SubResource("SphereShape3D_coin")
 
 [node name="CoinMesh" type="MeshInstance3D" parent="Coins/Coin1"]
-mesh = SubResource("BoxMesh_column")
-scale = Vector3(0.15, 0.15, 0.05)
+mesh = SubResource("CylinderMesh_coin")
+rotation_degrees = Vector3(90, 0, 0)
 surface_material_override/0 = SubResource("ShaderMaterial_coin")
 
 [node name="Coin2" type="Area3D" parent="Coins"]
@@ -166,8 +177,8 @@ script = ExtResource("2_oj5y5")
 shape = SubResource("SphereShape3D_coin")
 
 [node name="CoinMesh" type="MeshInstance3D" parent="Coins/Coin2"]
-mesh = SubResource("BoxMesh_column")
-scale = Vector3(0.15, 0.15, 0.05)
+mesh = SubResource("CylinderMesh_coin")
+rotation_degrees = Vector3(90, 0, 0)
 surface_material_override/0 = SubResource("ShaderMaterial_coin")
 
 [node name="Coin3" type="Area3D" parent="Coins"]
@@ -178,8 +189,8 @@ script = ExtResource("2_oj5y5")
 shape = SubResource("SphereShape3D_coin")
 
 [node name="CoinMesh" type="MeshInstance3D" parent="Coins/Coin3"]
-mesh = SubResource("BoxMesh_column")
-scale = Vector3(0.15, 0.15, 0.05)
+mesh = SubResource("CylinderMesh_coin")
+rotation_degrees = Vector3(90, 0, 0)
 surface_material_override/0 = SubResource("ShaderMaterial_coin")
 
 [node name="Obstacles" type="Node3D" parent="."]
@@ -192,12 +203,15 @@ groups=["despawn_on_hit"]
 shape = SubResource("BoxShape3D_low_obstacle")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/RubbleLow"]
-mesh = SubResource("BoxMesh_column")
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.565, 0)
-scale = Vector3(1.4, 0.35, 1.4)
-ignore_occlusion_culling = true
-extra_cull_margin = 8.0
-surface_material_override/0 = ExtResource("3_obred")
+mesh = SubResource("BoxMesh_ob_piece")
+visible = false
+
+[node name="Pieces" type="Node3D" parent="Obstacles/RubbleLow"]
+
+[node name="Barrel" parent="Obstacles/RubbleLow/Pieces" instance=ExtResource("6_barrel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+rotation_degrees = Vector3(0, 25, 0)
+scale = Vector3(1.1, 1.1, 1.1)
 
 [node name="BeamHigh" type="StaticBody3D" parent="Obstacles"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.5, 18)
@@ -222,12 +236,15 @@ groups=["despawn_on_hit"]
 shape = SubResource("BoxShape3D_low_obstacle")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/RubbleLow_Lane2"]
-mesh = SubResource("BoxMesh_column")
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.565, 0)
-scale = Vector3(1.4, 0.35, 1.4)
-ignore_occlusion_culling = true
-extra_cull_margin = 8.0
-surface_material_override/0 = ExtResource("3_obred")
+mesh = SubResource("BoxMesh_ob_piece")
+visible = false
+
+[node name="Pieces" type="Node3D" parent="Obstacles/RubbleLow_Lane2"]
+
+[node name="Barrel" parent="Obstacles/RubbleLow_Lane2/Pieces" instance=ExtResource("6_barrel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+rotation_degrees = Vector3(0, -15, 0)
+scale = Vector3(1.1, 1.1, 1.1)
 
 [node name="BeamHigh_Lane3" type="StaticBody3D" parent="Obstacles"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.5, 30)

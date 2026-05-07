@@ -30,6 +30,10 @@ var _powerup_timer_s: float = 0.0
 const POWERUP_SCENE_SCRIPT := preload("res://scripts/powerup_pickup.gd")
 const POWERUP_TYPES: Array[String] = ["magnet", "invincible", "double"]
 
+const POWERUP_MAT_BLUE := preload("res://materials/powerup_glow_blue.tres")
+const POWERUP_MAT_GREEN := preload("res://materials/powerup_glow_green.tres")
+const POWERUP_MAT_ORANGE := preload("res://materials/powerup_glow_orange.tres")
+
 func _ready() -> void:
 	_player = get_node(player_path) as Node3D
 	_rng.randomize()
@@ -277,17 +281,15 @@ func _spawn_powerup() -> void:
 	area.add_child(mesh)
 
 func _powerup_material(powerup_type: String) -> Material:
-	var mat := StandardMaterial3D.new()
 	match powerup_type:
 		"magnet":
-			mat.albedo_color = Color(0.2, 0.55, 1.0)
+			return POWERUP_MAT_BLUE
 		"invincible":
-			mat.albedo_color = Color(0.2, 1.0, 0.35)
+			return POWERUP_MAT_GREEN
 		"double":
-			mat.albedo_color = Color(1.0, 0.55, 0.1)
+			return POWERUP_MAT_ORANGE
 		_:
-			mat.albedo_color = Color(1.0, 1.0, 1.0)
-	return mat
+			return POWERUP_MAT_BLUE
 
 func _maybe_rebase_world() -> void:
 	# Floating origin: keep Z values small to avoid depth precision artifacts

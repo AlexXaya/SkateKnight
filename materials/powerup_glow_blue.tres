@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://powerupglowblue0001"]
+
+[ext_resource type="Shader" path="res://materials/obstacle_red_glow.gdshader" id="1_glow"]
+
+[resource]
+shader = ExtResource("1_glow")
+shader_parameter/albedo = Color(0.2, 0.55, 1.0, 1)
+shader_parameter/shadow_tint = Vector3(0.07, 0.18, 0.35)
+shader_parameter/shade_threshold = 0.5
+shader_parameter/shade_softness = 0.08
+shader_parameter/glow_color = Vector3(0.2, 0.55, 1.0)
+shader_parameter/glow_strength = 7.5
+shader_parameter/glow_width = 2.2
+
