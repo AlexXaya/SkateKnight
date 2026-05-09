@@ -64,7 +64,7 @@ process_mode = 1
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("7_1n0cl")
 target_path = NodePath("../Player")
-offset = Vector3(0, 4, -13)
+offset = Vector3(0, 4, -9)
 process_mode = 1
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig"]

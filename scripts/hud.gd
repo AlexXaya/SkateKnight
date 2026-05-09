@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var _score_box: PanelContainer = $HUD/Margin/VBox/TopStatsCenter/TopStats/ScoreBox
 @onready var _dist_box: PanelContainer = $HUD/Margin/VBox/TopStatsCenter/TopStats/DistanceBox
 @onready var _coins_value: Label = $HUD/Margin/VBox/TopStatsCenter/TopStats/CoinsBox/Pad/VBox/Value
+@onready var _coins_icon: TextureRect = $HUD/Margin/VBox/TopStatsCenter/TopStats/CoinsBox/Pad/VBox/HeaderCenter/Header/Icon
 @onready var _score_value: Label = $HUD/Margin/VBox/TopStatsCenter/TopStats/ScoreBox/Pad/VBox/Value
 @onready var _dist_value: Label = $HUD/Margin/VBox/TopStatsCenter/TopStats/DistanceBox/Pad/VBox/Value
 @onready var _game_over: Control = $GameOver
@@ -37,6 +38,12 @@ var _next_distance_milestone: int = 1000
 @export var milestone_sparkle_size_px: float = 10.0
 var _sparkle_layer: Control
 var _sparkles: GPUParticles2D
+var _coin_pickup_sparkles: GPUParticles2D
+var _coin_box_pulse_tween: Tween
+
+@export var coin_pickup_sparkle_count: int = 22
+@export var coin_pickup_sparkle_lifetime_s: float = 0.38
+@export var coin_pickup_sparkle_speed: float = 220.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -48,6 +55,7 @@ func _ready() -> void:
 	_apply_box_style_overrides(hud_theme)
 	_build_danger_overlay()
 	_build_milestone_sparkles()
+	_build_coin_pickup_sparkles()
 	_build_game_over_ui()
 	_rm = get_node(run_manager_path)
 	_game_over.visible = false
@@ -58,6 +66,8 @@ func _ready() -> void:
 			_rm.connect("run_over", _on_run_over)
 		if _rm.has_signal("danger_changed"):
 			_rm.connect("danger_changed", _on_danger_changed)
+		if _rm.has_signal("coin_pickup"):
+			_rm.connect("coin_pickup", _on_coin_pickup)
 
 func _process(delta: float) -> void:
 	var step := maxf(1.0, count_speed) * maxf(0.0, delta)
@@ -82,6 +92,14 @@ func _on_stats_changed(coins: int, score: int, distance: float) -> void:
 		_dist_display = _dist_target
 
 func _on_run_over() -> void:
+	# Freeze the count-up animation so stats don't keep climbing after death.
+	_coins_display = _coins_target
+	_score_display = _score_target
+	_dist_display = _dist_target
+	_coins_value.text = "%d" % int(round(_coins_display))
+	_score_value.text = "%d" % int(round(_score_display))
+	_dist_value.text = "%dm" % int(round(_dist_display))
+
 	# Stop gameplay entirely.
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -182,6 +200,59 @@ func _build_milestone_sparkles() -> void:
 
 	_sparkle_layer.add_child(_sparkles)
 
+func _build_coin_pickup_sparkles() -> void:
+	if _sparkle_layer == null:
+		return
+	_coin_pickup_sparkles = GPUParticles2D.new()
+	_coin_pickup_sparkles.name = "CoinPickupSparkles"
+	_coin_pickup_sparkles.one_shot = true
+	_coin_pickup_sparkles.emitting = false
+	_coin_pickup_sparkles.amount = maxi(1, coin_pickup_sparkle_count)
+	_coin_pickup_sparkles.lifetime = maxf(0.05, coin_pickup_sparkle_lifetime_s)
+	_coin_pickup_sparkles.explosiveness = 1.0
+	_coin_pickup_sparkles.randomness = 0.35
+	_coin_pickup_sparkles.texture = _make_sparkle_texture()
+
+	var mat := ParticleProcessMaterial.new()
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINT
+	mat.direction = Vector3(0, -1, 0)
+	mat.spread = 140.0
+	mat.gravity = Vector3(0, 0, 0)
+	mat.initial_velocity_min = maxf(8.0, coin_pickup_sparkle_speed * 0.35)
+	mat.initial_velocity_max = maxf(mat.initial_velocity_min, coin_pickup_sparkle_speed)
+	mat.damping_min = 3.0
+	mat.damping_max = 8.0
+
+	var ramp := Gradient.new()
+	ramp.colors = PackedColorArray([
+		Color(1.0, 0.92, 0.35, 0.0),
+		Color(1.0, 0.96, 0.55, 0.95),
+		Color(1.0, 0.65, 0.15, 0.0),
+	])
+	ramp.offsets = PackedFloat32Array([0.0, 0.14, 1.0])
+	var ramp_tex := GradientTexture1D.new()
+	ramp_tex.gradient = ramp
+	mat.color_ramp = ramp_tex
+
+	var curve := Curve.new()
+	curve.add_point(Vector2(0.0, 0.0))
+	curve.add_point(Vector2(0.12, 1.0))
+	curve.add_point(Vector2(1.0, 0.0))
+	var curve_tex := CurveTexture.new()
+	curve_tex.curve = curve
+	mat.scale_curve = curve_tex
+	var sz := maxf(0.04, milestone_sparkle_size_px * 0.55 / 16.0)
+	mat.scale_min = sz
+	mat.scale_max = sz * 1.4
+
+	_coin_pickup_sparkles.process_material = mat
+
+	var cim := CanvasItemMaterial.new()
+	cim.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_coin_pickup_sparkles.material = cim
+
+	_sparkle_layer.add_child(_coin_pickup_sparkles)
+
 func _make_sparkle_texture() -> Texture2D:
 	var size := 32
 	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
@@ -249,6 +320,83 @@ func _play_sparkles() -> void:
 	_sparkles.emitting = false
 	_sparkles.restart()
 	_sparkles.emitting = true
+
+func _on_coin_pickup(amount: int) -> void:
+	if amount <= 0:
+		return
+	_coin_pickup_pulse()
+	_coin_pickup_popup(amount)
+	_play_coin_pickup_sparkles()
+
+func _coin_pickup_pulse() -> void:
+	if not is_instance_valid(_coins_box):
+		return
+	if _coin_box_pulse_tween:
+		_coin_box_pulse_tween.kill()
+		_coin_box_pulse_tween = null
+	_coins_box.pivot_offset = _coins_box.size * 0.5
+	_coin_box_pulse_tween = create_tween()
+	_coin_box_pulse_tween.set_parallel(true)
+	_coin_box_pulse_tween.tween_property(_coins_box, "scale", Vector2(1.07, 1.07), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if is_instance_valid(_coins_value):
+		_coin_box_pulse_tween.tween_property(_coins_value, "modulate", Color(1.0, 0.95, 0.58), 0.06)
+	_coin_box_pulse_tween.chain()
+	_coin_box_pulse_tween.set_parallel(true)
+	_coin_box_pulse_tween.tween_property(_coins_box, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if is_instance_valid(_coins_value):
+		_coin_box_pulse_tween.tween_property(_coins_value, "modulate", Color.WHITE, 0.2)
+
+func _coin_pickup_popup(amount: int) -> void:
+	var layer: Control = _sparkle_layer if _sparkle_layer != null else _hud_root
+	if layer == null:
+		return
+	var lbl := Label.new()
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl.text = "+%d" % amount
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var bold_font := _load_font_or_null("res://ui/fonts/Cinzel-Bold.ttf")
+	if bold_font != null:
+		lbl.add_theme_font_override("font", bold_font)
+	lbl.add_theme_font_size_override("font_size", 26)
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.88, 0.38))
+	lbl.add_theme_color_override("font_outline_color", Color(0.06, 0.05, 0.02))
+	lbl.add_theme_constant_override("outline_size", 3)
+	layer.add_child(lbl)
+
+	var center := _coins_box.get_global_rect().get_center()
+	if is_instance_valid(_coins_icon):
+		center = _coins_icon.get_global_rect().get_center()
+
+	await get_tree().process_frame
+	if not is_instance_valid(lbl):
+		return
+	lbl.global_position = Vector2(center.x - lbl.size.x * 0.5, center.y - lbl.size.y - 6.0)
+
+	var tw := create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(lbl, "global_position:y", lbl.global_position.y - 38.0, 0.48).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(lbl, "modulate:a", 0.0, 0.5).set_delay(0.08)
+	tw.finished.connect(func():
+		if is_instance_valid(lbl):
+			lbl.queue_free()
+	)
+
+func _play_coin_pickup_sparkles() -> void:
+	if _coin_pickup_sparkles == null or not is_instance_valid(_coins_box):
+		return
+	var center := _coins_box.get_global_rect().get_center()
+	if is_instance_valid(_coins_icon):
+		center = _coins_icon.get_global_rect().get_center()
+	_coin_pickup_sparkles.global_position = center
+	_coin_pickup_sparkles.amount = maxi(1, coin_pickup_sparkle_count)
+	_coin_pickup_sparkles.lifetime = maxf(0.05, coin_pickup_sparkle_lifetime_s)
+	var pm := _coin_pickup_sparkles.process_material as ParticleProcessMaterial
+	if pm:
+		pm.initial_velocity_min = maxf(8.0, coin_pickup_sparkle_speed * 0.35)
+		pm.initial_velocity_max = maxf(pm.initial_velocity_min, coin_pickup_sparkle_speed)
+	_coin_pickup_sparkles.emitting = false
+	_coin_pickup_sparkles.restart()
+	_coin_pickup_sparkles.emitting = true
 
 func _on_danger_changed(active: bool) -> void:
 	if _danger_overlay == null:

@@ -48,6 +48,8 @@ shape = SubResource("CapsuleShape3D_player")
 
 [node name="Visual" type="Node3D" parent="."]
 
+[node name="KnightModel" type="Node3D" parent="Visual"]
+
 [node name="Torso" type="MeshInstance3D" parent="Visual"]
 mesh = SubResource("CapsuleMesh_torso")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)

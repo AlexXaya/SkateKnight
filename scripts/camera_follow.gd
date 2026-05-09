@@ -1,7 +1,7 @@
 extends Node3D
 
 @export var target_path: NodePath
-@export var offset: Vector3 = Vector3(0, 4.0, -8.5)
+@export var offset: Vector3 = Vector3(0, 4.0, -9.0)
 @export var smoothness: float = 10.0
 @export var enable_collision_avoidance: bool = false
 @export var collision_mask: int = 1
@@ -32,10 +32,10 @@ func _cycle_camera_preset() -> void:
 	# Presets are intentionally dramatic so we can diagnose visibility issues quickly.
 	# 0: default-ish chase, 1: higher chase, 2: side chase, 3: top-down-ish.
 	var offsets = [
-		Vector3(0, 4.0, -13.0),
-		Vector3(0, 7.0, -16.0),
-		Vector3(8.0, 5.0, -12.0),
-		Vector3(0, 14.0, -10.0),
+		Vector3(0, 4.0, -9.0),
+		Vector3(0, 7.0, -13.0),
+		Vector3(8.0, 5.0, -10.0),
+		Vector3(0, 14.0, -8.0),
 	]
 	var rots = [
 		Vector3(-18, 180, 0),

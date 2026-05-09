@@ -17,6 +17,7 @@ var _danger_hits: int = 0
 signal run_over
 signal stats_changed(coins: int, score: int, distance: float)
 signal danger_changed(active: bool)
+signal coin_pickup(amount: int)
 
 func _ready() -> void:
 	_player = get_node(player_path) as Node3D
@@ -45,6 +46,7 @@ func _process(_delta: float) -> void:
 
 func _on_coin_collected(amount: int) -> void:
 	coins += amount
+	coin_pickup.emit(amount)
 
 func _on_crashed() -> void:
 	if not _is_running:

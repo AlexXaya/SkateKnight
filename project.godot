@@ -23,6 +23,7 @@ config/icon="res://icon.svg"
 
 Music="*res://scripts/music.gd"
 Sfx="*res://scripts/sfx.gd"
+PlayerSkins="*res://scripts/player_skins.gd"
 
 [display]
 

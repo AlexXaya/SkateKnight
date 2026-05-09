@@ -46,6 +46,10 @@ func _ready() -> void:
 	if shape is CapsuleShape3D:
 		_capsule_height_default = (shape as CapsuleShape3D).height
 
+	var skins := get_node_or_null("/root/PlayerSkins")
+	if skins != null and skins.has_method("apply_to_player"):
+		skins.call("apply_to_player", self)
+
 func _physics_process(delta: float) -> void:
 	_handle_input(delta)
 

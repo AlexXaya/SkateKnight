@@ -11,6 +11,9 @@ var _visual_node: Node3D
 var _ui_root: Control
 var _main_panel: Control
 var _settings_panel: Control
+var _skins_panel: Control
+var _skin_name_label: Label
+var _skin_index: int = 0
 var _music_slider: HSlider
 var _music_value: Label
 var _sfx_slider: HSlider
@@ -30,6 +33,8 @@ func _ready() -> void:
 
 	_spawn_preview()
 	_build_ui()
+	if _visual_node != null:
+		PlayerSkins.apply_to_visual(_visual_node)
 
 	# Freeze preview gameplay.
 	get_tree().paused = true
@@ -155,9 +160,9 @@ func _build_ui() -> void:
 	main_v.add_child(settings_btn)
 
 	var skins_btn := Button.new()
-	skins_btn.text = "Skins (coming soon)"
-	skins_btn.disabled = true
+	skins_btn.text = "Skins"
 	skins_btn.focus_mode = Control.FOCUS_NONE
+	skins_btn.pressed.connect(_show_skins)
 	main_v.add_child(skins_btn)
 
 	var quit_btn := Button.new()
@@ -256,6 +261,111 @@ func _build_ui() -> void:
 	back_btn.focus_mode = Control.FOCUS_NONE
 	back_btn.pressed.connect(_hide_settings)
 	set_v.add_child(back_btn)
+
+	_build_skins_panel(stack, bold_font)
+
+func _build_skins_panel(stack: VBoxContainer, bold_font: Font) -> void:
+	_skins_panel = PanelContainer.new()
+	_skins_panel.visible = false
+	stack.add_child(_skins_panel)
+
+	var skins_pad := MarginContainer.new()
+	skins_pad.add_theme_constant_override("margin_left", 18)
+	skins_pad.add_theme_constant_override("margin_right", 18)
+	skins_pad.add_theme_constant_override("margin_top", 16)
+	skins_pad.add_theme_constant_override("margin_bottom", 16)
+	_skins_panel.add_child(skins_pad)
+
+	var skins_v := VBoxContainer.new()
+	skins_v.add_theme_constant_override("separation", 12)
+	skins_pad.add_child(skins_v)
+
+	var skins_title := Label.new()
+	skins_title.text = "SKINS"
+	skins_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	skins_title.add_theme_font_size_override("font_size", 28)
+	if bold_font != null:
+		skins_title.add_theme_font_override("font", bold_font)
+	skins_v.add_child(skins_title)
+
+	_skin_name_label = Label.new()
+	_skin_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_skin_name_label.add_theme_font_size_override("font_size", 22)
+	if bold_font != null:
+		_skin_name_label.add_theme_font_override("font", bold_font)
+	skins_v.add_child(_skin_name_label)
+
+	var hint := Label.new()
+	hint.text = "Preview updates as you browse. Choice is saved automatically."
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.modulate = Color(0.85, 0.9, 1.0, 0.82)
+	hint.add_theme_font_size_override("font_size", 15)
+	skins_v.add_child(hint)
+
+	var skin_row := HBoxContainer.new()
+	skin_row.add_theme_constant_override("separation", 18)
+	skins_v.add_child(skin_row)
+
+	var prev_btn := Button.new()
+	prev_btn.text = "◀"
+	prev_btn.custom_minimum_size = Vector2(52, 0)
+	prev_btn.focus_mode = Control.FOCUS_NONE
+	prev_btn.pressed.connect(func(): _cycle_skin(-1))
+	skin_row.add_child(prev_btn)
+
+	var next_btn := Button.new()
+	next_btn.text = "▶"
+	next_btn.custom_minimum_size = Vector2(52, 0)
+	next_btn.focus_mode = Control.FOCUS_NONE
+	next_btn.pressed.connect(func(): _cycle_skin(1))
+	skin_row.add_child(next_btn)
+
+	var skins_back := Button.new()
+	skins_back.text = "Back"
+	skins_back.focus_mode = Control.FOCUS_NONE
+	skins_back.pressed.connect(_hide_skins)
+	skins_v.add_child(skins_back)
+
+func _cycle_skin(delta: int) -> void:
+	var ids := SkinCatalog.skin_ids_ordered()
+	var n := ids.size()
+	if n <= 0:
+		return
+	_skin_index = (_skin_index + delta + n) % n
+	var id := ids[_skin_index]
+	PlayerSkins.set_selected_id(id)
+	if _visual_node != null:
+		PlayerSkins.apply_skin_to_visual(_visual_node, id)
+	_update_skin_menu_label()
+
+
+func _update_skin_menu_label() -> void:
+	if _skin_name_label == null:
+		return
+	var ids := SkinCatalog.skin_ids_ordered()
+	if _skin_index < 0 or _skin_index >= ids.size():
+		return
+	var skin := SkinCatalog.get_skin(ids[_skin_index])
+	_skin_name_label.text = skin["name"]
+
+
+func _show_skins() -> void:
+	if _settings_panel:
+		_settings_panel.visible = false
+	if _main_panel:
+		_main_panel.visible = false
+	if _skins_panel:
+		_skins_panel.visible = true
+	_skin_index = SkinCatalog.index_of(PlayerSkins.get_selected_id())
+	_update_skin_menu_label()
+
+
+func _hide_skins() -> void:
+	if _skins_panel:
+		_skins_panel.visible = false
+	if _main_panel:
+		_main_panel.visible = true
 
 func _make_theme() -> Theme:
 	var t := Theme.new()
@@ -395,6 +505,8 @@ func _start_game() -> void:
 	get_tree().change_scene_to_file(game_scene_path)
 
 func _show_settings() -> void:
+	if _skins_panel:
+		_skins_panel.visible = false
 	if _main_panel:
 		_main_panel.visible = false
 	if _settings_panel:
