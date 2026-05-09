@@ -1,5 +1,7 @@
 extends Node
 
+const SkinCatalog := preload("res://scripts/skin_catalog.gd")
+
 const SETTINGS_PATH := "user://skate_knight_settings.cfg"
 const SECTION := "cosmetics"
 const KEY_SKIN := "selected_skin"

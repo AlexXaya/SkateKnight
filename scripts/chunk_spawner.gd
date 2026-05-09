@@ -34,6 +34,8 @@ const POWERUP_MAT_BLUE := preload("res://materials/powerup_glow_blue.tres")
 const POWERUP_MAT_GREEN := preload("res://materials/powerup_glow_green.tres")
 const POWERUP_MAT_ORANGE := preload("res://materials/powerup_glow_orange.tres")
 const POWERUP_MAGNET_SCENE := preload("res://scenes/props/magnet_u.tscn")
+const POWERUP_SHIELD_SCENE := preload("res://scenes/props/knight_shield.tscn")
+const POWERUP_DOUBLE_SCENE := preload("res://scenes/props/double_x_pillars.tscn")
 
 func _ready() -> void:
 	_player = get_node(player_path) as Node3D
@@ -280,6 +282,12 @@ func _spawn_powerup() -> void:
 	if powerup_type == "magnet" and POWERUP_MAGNET_SCENE != null:
 		var magnet := POWERUP_MAGNET_SCENE.instantiate() as Node3D
 		visual.add_child(magnet)
+	elif powerup_type == "invincible" and POWERUP_SHIELD_SCENE != null:
+		var shield := POWERUP_SHIELD_SCENE.instantiate() as Node3D
+		visual.add_child(shield)
+	elif powerup_type == "double" and POWERUP_DOUBLE_SCENE != null:
+		var double_visual := POWERUP_DOUBLE_SCENE.instantiate() as Node3D
+		visual.add_child(double_visual)
 	else:
 		var mesh := MeshInstance3D.new()
 		mesh.name = "Mesh"

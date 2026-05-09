@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_0d7pp"]
 [ext_resource type="Shader" path="res://materials/toon.gdshader" id="2_2w2u5"]
+[ext_resource type="Material" path="res://materials/invincible_bubble_green.tres" id="3_bubble_mat"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_player"]
 shader = ExtResource("2_2w2u5")
@@ -40,6 +41,10 @@ top_radius = 0.06
 bottom_radius = 0.06
 height = 0.04
 
+[sub_resource type="SphereMesh" id="SphereMesh_bubble"]
+radius = 0.95
+height = 1.9
+
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_0d7pp")
 
@@ -47,6 +52,14 @@ script = ExtResource("1_0d7pp")
 shape = SubResource("CapsuleShape3D_player")
 
 [node name="Visual" type="Node3D" parent="."]
+
+[node name="InvincibleBubble" type="MeshInstance3D" parent="Visual"]
+mesh = SubResource("SphereMesh_bubble")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+visible = false
+ignore_occlusion_culling = true
+extra_cull_margin = 8.0
+surface_material_override/0 = ExtResource("3_bubble_mat")
 
 [node name="KnightModel" type="Node3D" parent="Visual"]
 

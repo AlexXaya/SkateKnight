@@ -1,5 +1,7 @@
 extends Node
 
+const SkinCatalog := preload("res://scripts/skin_catalog.gd")
+
 @export var game_scene_path: String = "res://scenes/main.tscn"
 @export var start_camera_offset: Vector3 = Vector3(0, 4, -9)
 @export var spin_speed_deg_per_sec: float = 140.0

@@ -36,6 +36,7 @@ var _double_coins_t := 0.0
 
 @onready var _collider: CollisionShape3D = $CollisionShape3D
 @onready var _visual: Node3D = $Visual
+@onready var _invincible_bubble: Node3D = $Visual/InvincibleBubble
 
 func _ready() -> void:
 	add_to_group("player")
@@ -185,6 +186,9 @@ func _tick_powerups(delta: float) -> void:
 	_coin_magnet_t = maxf(0.0, _coin_magnet_t - delta)
 	_invincible_t = maxf(0.0, _invincible_t - delta)
 	_double_coins_t = maxf(0.0, _double_coins_t - delta)
+	if _invincible_bubble != null:
+		# Only show the bubble for the actual invincible powerup timer (not debug invulnerable).
+		_invincible_bubble.visible = _invincible_t > 0.0
 	if _coin_magnet_t > 0.0:
 		_attract_nearby_coins(delta)
 

@@ -1,0 +1,14 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://invinciblebubblegreen0001"]
+
+[resource]
+transparency = 1
+albedo_color = Color(0.2, 1.0, 0.35, 0.14)
+metallic = 0.0
+roughness = 0.2
+emission_enabled = true
+emission = Color(0.2, 1.0, 0.35, 1)
+emission_energy_multiplier = 1.2
+grow = true
+grow_amount = 0.05
+cull_mode = 2
+shading_mode = 1

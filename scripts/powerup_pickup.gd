@@ -8,7 +8,7 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 func _process(delta: float) -> void:
-	if powerup_type != "magnet":
+	if powerup_type != "magnet" and powerup_type != "invincible" and powerup_type != "double":
 		return
 	var visual := get_node_or_null("Visual") as Node3D
 	if visual != null and spin_speed_rad_s != 0.0:

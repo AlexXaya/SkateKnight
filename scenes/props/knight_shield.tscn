@@ -1,0 +1,44 @@
+[gd_scene load_steps=4 format=3 uid="uid://knightshield0001"]
+
+[ext_resource type="Material" path="res://materials/powerup_glow_green.tres" id="1_green_glow"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_plate"]
+radius = 0.22
+height = 0.45
+radial_segments = 18
+rings = 6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_boss"]
+top_radius = 0.07
+bottom_radius = 0.07
+height = 0.05
+radial_segments = 18
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tip"]
+top_radius = 0.01
+bottom_radius = 0.16
+height = 0.22
+radial_segments = 18
+
+[node name="KnightShield" type="Node3D"]
+
+[node name="Plate" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_plate")
+# Lay the capsule "flat" to read like a shield plate.
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(1.0, 1.35, 0.22)
+surface_material_override/0 = ExtResource("1_green_glow")
+
+[node name="Tip" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_tip")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.38, 0)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(1.0, 1.0, 0.22)
+surface_material_override/0 = ExtResource("1_green_glow")
+
+[node name="Boss" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_boss")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.06)
+rotation_degrees = Vector3(90, 0, 0)
+surface_material_override/0 = ExtResource("1_green_glow")
+
