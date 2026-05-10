@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://knightshield0001"]
+[gd_scene format=3 uid="uid://d0pw8rw2mngpk"]
 
 [ext_resource type="Material" path="res://materials/powerup_glow_green.tres" id="1_green_glow"]
 

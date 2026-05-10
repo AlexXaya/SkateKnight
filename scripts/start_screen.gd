@@ -15,12 +15,19 @@ var _main_panel: Control
 var _settings_panel: Control
 var _skins_panel: Control
 var _skin_name_label: Label
+var _skin_lock_label: Label
 var _skin_index: int = 0
 var _music_slider: HSlider
 var _music_value: Label
 var _sfx_slider: HSlider
 var _sfx_value: Label
 var _theme: Theme
+
+var _toast_host: Control
+
+@export var skin_unlock_toast_hold_s: float = 3.0
+@export var skin_unlock_toast_fade_in_s: float = 0.38
+@export var skin_unlock_toast_fade_out_s: float = 0.48
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -40,6 +47,8 @@ func _ready() -> void:
 
 	# Freeze preview gameplay.
 	get_tree().paused = true
+
+	call_deferred("_play_pending_skin_unlock_toasts")
 
 func _spawn_preview() -> void:
 	if game_scene_path.is_empty() or not ResourceLoader.exists(game_scene_path):
@@ -90,10 +99,10 @@ func _process(delta: float) -> void:
 	_visual_node.rotate_y(deg_to_rad(spin_speed_deg_per_sec) * maxf(0.0, delta))
 
 func _build_ui() -> void:
-	var layer := CanvasLayer.new()
-	layer.layer = 200
-	layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(layer)
+	var canvas_layer := CanvasLayer.new()
+	canvas_layer.layer = 200
+	canvas_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(canvas_layer)
 
 	_theme = _make_theme()
 
@@ -101,7 +110,7 @@ func _build_ui() -> void:
 	_ui_root.anchor_right = 1.0
 	_ui_root.anchor_bottom = 1.0
 	_ui_root.theme = _theme
-	layer.add_child(_ui_root)
+	canvas_layer.add_child(_ui_root)
 
 	var dim := ColorRect.new()
 	dim.anchor_right = 1.0
@@ -266,6 +275,138 @@ func _build_ui() -> void:
 
 	_build_skins_panel(stack, bold_font)
 
+	_build_toast_host(canvas_layer)
+
+
+func _build_toast_host(canvas_layer: CanvasLayer) -> void:
+	_toast_host = Control.new()
+	_toast_host.name = "SkinUnlockToasts"
+	_toast_host.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_toast_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas_layer.add_child(_toast_host)
+
+
+func _play_pending_skin_unlock_toasts() -> void:
+	var rec := get_node_or_null("/root/PlayerRecords")
+	if rec == null or not rec.has_method("peek_pending_skin_unlocks"):
+		return
+	var pending: PackedStringArray = rec.peek_pending_skin_unlocks()
+	if pending.is_empty():
+		return
+	_play_skin_unlock_at(pending, 0)
+
+
+func _play_skin_unlock_at(ids: PackedStringArray, idx: int) -> void:
+	if idx >= ids.size():
+		var rec := get_node_or_null("/root/PlayerRecords")
+		if rec != null and rec.has_method("clear_pending_skin_unlocks"):
+			rec.clear_pending_skin_unlocks()
+		return
+	var id := str(ids[idx])
+	var skin := SkinCatalog.get_skin(id)
+	var skin_name := str(skin.get("name", id))
+	_show_skin_unlock_toast(skin_name, func(): _play_skin_unlock_at(ids, idx + 1))
+
+
+func _show_skin_unlock_toast(skin_display_name: String, on_finished: Callable) -> void:
+	if _toast_host == null:
+		on_finished.call()
+		return
+
+	var wrap := Control.new()
+	wrap.set_anchors_preset(Control.PRESET_FULL_RECT)
+	wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_toast_host.add_child(wrap)
+
+	var vb := VBoxContainer.new()
+	vb.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vb.alignment = BoxContainer.ALIGNMENT_END
+	vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wrap.add_child(vb)
+
+	var spacer := Control.new()
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vb.add_child(spacer)
+
+	var outer := MarginContainer.new()
+	outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	outer.add_theme_constant_override("margin_bottom", 52)
+	outer.add_theme_constant_override("margin_left", 72)
+	outer.add_theme_constant_override("margin_right", 72)
+	outer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vb.add_child(outer)
+
+	var panel := PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.theme = _theme
+	panel.add_theme_stylebox_override("panel", _make_toast_panel_stylebox())
+	outer.add_child(panel)
+
+	var pad := MarginContainer.new()
+	pad.add_theme_constant_override("margin_left", 18)
+	pad.add_theme_constant_override("margin_right", 18)
+	pad.add_theme_constant_override("margin_top", 14)
+	pad.add_theme_constant_override("margin_bottom", 14)
+	panel.add_child(pad)
+
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 6)
+	pad.add_child(v)
+
+	var bold_font := _load_font_or_null("res://ui/fonts/Cinzel-Bold.ttf")
+
+	var toast_title := Label.new()
+	toast_title.text = "Skin unlocked!"
+	toast_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	toast_title.add_theme_font_size_override("font_size", 17)
+	toast_title.modulate = Color(0.95, 0.88, 0.55, 1.0)
+	if bold_font != null:
+		toast_title.add_theme_font_override("font", bold_font)
+	v.add_child(toast_title)
+
+	var sub := Label.new()
+	sub.text = skin_display_name
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.add_theme_font_size_override("font_size", 24)
+	if bold_font != null:
+		sub.add_theme_font_override("font", bold_font)
+	v.add_child(sub)
+
+	outer.modulate.a = 0.0
+	var tw := create_tween()
+	tw.tween_property(outer, "modulate:a", 1.0, skin_unlock_toast_fade_in_s).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_interval(skin_unlock_toast_hold_s)
+	tw.tween_property(outer, "modulate:a", 0.0, skin_unlock_toast_fade_out_s).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_callback(func():
+		if is_instance_valid(wrap):
+			wrap.queue_free()
+		on_finished.call()
+	)
+
+
+func _make_toast_panel_stylebox() -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.12, 0.14, 0.1, 0.96)
+	sb.border_color = Color(0.92, 0.76, 0.34, 1.0)
+	sb.border_width_left = 2
+	sb.border_width_top = 2
+	sb.border_width_right = 2
+	sb.border_width_bottom = 2
+	sb.corner_radius_top_left = 16
+	sb.corner_radius_top_right = 16
+	sb.corner_radius_bottom_left = 16
+	sb.corner_radius_bottom_right = 16
+	sb.content_margin_left = 0.0
+	sb.content_margin_top = 0.0
+	sb.content_margin_right = 0.0
+	sb.content_margin_bottom = 0.0
+	sb.shadow_color = Color(0, 0, 0, 0.55)
+	sb.shadow_size = 14
+	sb.shadow_offset = Vector2(0, 6)
+	return sb
+
+
 func _build_skins_panel(stack: VBoxContainer, bold_font: Font) -> void:
 	_skins_panel = PanelContainer.new()
 	_skins_panel.visible = false
@@ -297,8 +438,16 @@ func _build_skins_panel(stack: VBoxContainer, bold_font: Font) -> void:
 		_skin_name_label.add_theme_font_override("font", bold_font)
 	skins_v.add_child(_skin_name_label)
 
+	_skin_lock_label = Label.new()
+	_skin_lock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_skin_lock_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_skin_lock_label.visible = false
+	_skin_lock_label.modulate = Color(1.0, 0.82, 0.38, 0.95)
+	_skin_lock_label.add_theme_font_size_override("font_size", 15)
+	skins_v.add_child(_skin_lock_label)
+
 	var hint := Label.new()
-	hint.text = "Preview updates as you browse. Choice is saved automatically."
+	hint.text = "Preview every skin. Your equipped skin saves only when it is unlocked."
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.modulate = Color(0.85, 0.9, 1.0, 0.82)
@@ -336,9 +485,11 @@ func _cycle_skin(delta: int) -> void:
 		return
 	_skin_index = (_skin_index + delta + n) % n
 	var id := ids[_skin_index]
-	PlayerSkins.set_selected_id(id)
 	if _visual_node != null:
 		PlayerSkins.apply_skin_to_visual(_visual_node, id)
+	var rec := get_node_or_null("/root/PlayerRecords")
+	if rec != null and rec.has_method("is_skin_unlocked") and rec.is_skin_unlocked(id):
+		PlayerSkins.set_selected_id(id)
 	_update_skin_menu_label()
 
 
@@ -348,8 +499,23 @@ func _update_skin_menu_label() -> void:
 	var ids := SkinCatalog.skin_ids_ordered()
 	if _skin_index < 0 or _skin_index >= ids.size():
 		return
-	var skin := SkinCatalog.get_skin(ids[_skin_index])
+	var id := ids[_skin_index]
+	var skin := SkinCatalog.get_skin(id)
 	_skin_name_label.text = skin["name"]
+	if _skin_lock_label != null:
+		var rec := get_node_or_null("/root/PlayerRecords")
+		if rec == null or not rec.has_method("is_skin_unlocked"):
+			_skin_lock_label.visible = false
+		elif rec.is_skin_unlocked(id):
+			_skin_lock_label.visible = false
+		else:
+			_skin_lock_label.visible = true
+			_skin_lock_label.text = SkinCatalog.format_unlock_progress(
+				id,
+				rec.best_run_coins,
+				rec.best_run_score,
+				rec.best_run_distance_m
+			)
 
 
 func _show_skins() -> void:

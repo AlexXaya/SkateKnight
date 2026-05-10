@@ -91,6 +91,7 @@ process_mode = 1
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("5_4a2m3")
 run_manager_path = NodePath("../RunManager")
+player_path = NodePath("../Player")
 layer = 10
 
 [node name="InputDebug" type="CanvasLayer" parent="."]

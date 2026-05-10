@@ -207,3 +207,12 @@ func _attract_nearby_coins(delta: float) -> void:
 
 func _is_invincible_active() -> bool:
 	return _debug_invulnerable or _invincible_t > 0.0
+
+func get_magnet_remaining_s() -> float:
+	return _coin_magnet_t
+
+func get_invincible_remaining_s() -> float:
+	return _invincible_t
+
+func get_double_coins_remaining_s() -> float:
+	return _double_coins_t

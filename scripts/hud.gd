@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 @export var run_manager_path: NodePath
+@export var player_path: NodePath
 
 @onready var _hud_root: Control = $HUD
 @onready var _coins_box: PanelContainer = $HUD/Margin/VBox/TopStatsCenter/TopStats/CoinsBox
@@ -13,6 +14,7 @@ extends CanvasLayer
 @onready var _game_over: Control = $GameOver
 
 var _rm: Node
+var _player: Node
 var _coins_target: float = 0.0
 var _score_target: float = 0.0
 var _dist_target: float = 0.0
@@ -45,6 +47,8 @@ var _coin_box_pulse_tween: Tween
 @export var coin_pickup_sparkle_lifetime_s: float = 0.38
 @export var coin_pickup_sparkle_speed: float = 220.0
 
+var _powerup_slots: Dictionary = {}
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var hud_theme := _make_hud_theme()
@@ -57,6 +61,9 @@ func _ready() -> void:
 	_build_milestone_sparkles()
 	_build_coin_pickup_sparkles()
 	_build_game_over_ui()
+	if not player_path.is_empty():
+		_player = get_node_or_null(player_path)
+	_build_powerup_timers()
 	_rm = get_node(run_manager_path)
 	_game_over.visible = false
 	if _rm != null:
@@ -79,6 +86,8 @@ func _process(delta: float) -> void:
 	_score_value.text = "%d" % int(round(_score_display))
 	_dist_value.text = "%dm" % int(round(_dist_display))
 
+	_update_powerup_timers()
+
 func _on_stats_changed(coins: int, score: int, distance: float) -> void:
 	_coins_target = float(coins)
 	_score_target = float(score)
@@ -99,6 +108,11 @@ func _on_run_over() -> void:
 	_coins_value.text = "%d" % int(round(_coins_display))
 	_score_value.text = "%d" % int(round(_score_display))
 	_dist_value.text = "%dm" % int(round(_dist_display))
+
+	if _rm != null:
+		var pr := get_node_or_null("/root/PlayerRecords")
+		if pr != null and pr.has_method("submit_run_end"):
+			pr.submit_run_end(_rm.coins, _rm.score, _rm.best_distance)
 
 	# Stop gameplay entirely.
 	get_tree().paused = true
@@ -252,6 +266,118 @@ func _build_coin_pickup_sparkles() -> void:
 	_coin_pickup_sparkles.material = cim
 
 	_sparkle_layer.add_child(_coin_pickup_sparkles)
+
+func _build_powerup_timers() -> void:
+	var vbox := _hud_root.get_node_or_null("Margin/VBox") as VBoxContainer
+	if vbox == null:
+		return
+
+	var outer := CenterContainer.new()
+	outer.name = "PowerupTimers"
+	outer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+
+	var specs: Array = [
+		["magnet", "Magnet", Color(0.2, 0.55, 1.0)],
+		["invincible", "Shield", Color(0.2, 1.0, 0.35)],
+		["double", "2× Coins", Color(1.0, 0.55, 0.1)],
+	]
+	for spec in specs:
+		var slot := _make_powerup_timer_slot(spec[1], spec[2])
+		row.add_child(slot["root"])
+		_powerup_slots[spec[0]] = slot
+
+	outer.add_child(row)
+	vbox.add_child(outer)
+	vbox.move_child(outer, mini(1, vbox.get_child_count() - 1))
+
+func _make_powerup_timer_slot(title: String, col: Color) -> Dictionary:
+	var root := VBoxContainer.new()
+	root.custom_minimum_size = Vector2(92, 0)
+	root.add_theme_constant_override("separation", 3)
+
+	var title_lbl := Label.new()
+	title_lbl.text = title
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 13)
+	title_lbl.add_theme_color_override("font_color", col.darkened(0.08))
+	title_lbl.modulate.a = 0.9
+
+	var time_lbl := Label.new()
+	time_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	time_lbl.text = "0.0s"
+	var bold_font := _load_font_or_null("res://ui/fonts/Cinzel-Bold.ttf")
+	if bold_font != null:
+		time_lbl.add_theme_font_override("font", bold_font)
+	time_lbl.add_theme_font_size_override("font_size", 21)
+	time_lbl.add_theme_color_override("font_color", col)
+	time_lbl.add_theme_color_override("font_outline_color", Color(0.04, 0.05, 0.08))
+	time_lbl.add_theme_constant_override("outline_size", 3)
+
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size = Vector2(86, 8)
+	bar.show_percentage = false
+	bar.max_value = 5.0
+	bar.value = 0.0
+	bar.add_theme_stylebox_override("background", _make_powerup_pb_track())
+	bar.add_theme_stylebox_override("fill", _make_powerup_pb_fill(col))
+
+	root.add_child(title_lbl)
+	root.add_child(time_lbl)
+	root.add_child(bar)
+	root.visible = false
+
+	return {"root": root, "time": time_lbl, "bar": bar}
+
+func _make_powerup_pb_track() -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.06, 0.07, 0.12, 0.92)
+	sb.border_color = Color(0.35, 0.55, 1.0, 0.22)
+	sb.border_width_left = 1
+	sb.border_width_top = 1
+	sb.border_width_right = 1
+	sb.border_width_bottom = 1
+	sb.corner_radius_top_left = 4
+	sb.corner_radius_top_right = 4
+	sb.corner_radius_bottom_left = 4
+	sb.corner_radius_bottom_right = 4
+	return sb
+
+func _make_powerup_pb_fill(col: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = col
+	sb.corner_radius_top_left = 3
+	sb.corner_radius_top_right = 3
+	sb.corner_radius_bottom_left = 3
+	sb.corner_radius_bottom_right = 3
+	return sb
+
+func _set_powerup_slot(id: String, remaining: float, duration: float) -> void:
+	if not _powerup_slots.has(id):
+		return
+	var data: Dictionary = _powerup_slots[id]
+	var root: Control = data["root"]
+	var time_lbl: Label = data["time"]
+	var bar: ProgressBar = data["bar"]
+
+	var active := remaining > 0.001
+	root.visible = active
+	if not active:
+		return
+
+	time_lbl.text = "%.1fs" % remaining
+	bar.max_value = duration
+	bar.value = remaining
+
+func _update_powerup_timers() -> void:
+	if _player == null or not _player.has_method("get_magnet_remaining_s"):
+		return
+	var dur := maxf(0.1, float(_player.powerup_duration_s))
+	_set_powerup_slot("magnet", _player.get_magnet_remaining_s(), dur)
+	_set_powerup_slot("invincible", _player.get_invincible_remaining_s(), dur)
+	_set_powerup_slot("double", _player.get_double_coins_remaining_s(), dur)
 
 func _make_sparkle_texture() -> Texture2D:
 	var size := 32

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://doublexpillars0001"]
+[gd_scene format=3 uid="uid://dpv1ljygt3d81"]
 
 [ext_resource type="Material" path="res://materials/powerup_glow_orange.tres" id="1_orange_glow"]
 

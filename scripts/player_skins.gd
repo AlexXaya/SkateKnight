@@ -1,6 +1,7 @@
 extends Node
 
 const SkinCatalog := preload("res://scripts/skin_catalog.gd")
+const TOON_SHADER := preload("res://materials/toon.gdshader")
 
 const SETTINGS_PATH := "user://skate_knight_settings.cfg"
 const SECTION := "cosmetics"
@@ -13,13 +14,21 @@ func get_selected_id() -> String:
 	var saved := ""
 	if err == OK:
 		saved = str(cfg.get_value(SECTION, KEY_SKIN, ""))
+	saved = SkinCatalog.canonical_legacy_skin_id(saved)
 	if saved.is_empty() or not SkinCatalog.has_id(saved):
+		return SkinCatalog.default_id()
+	var rec := get_node_or_null("/root/PlayerRecords")
+	if rec != null and rec.has_method("is_skin_unlocked") and not rec.is_skin_unlocked(saved):
 		return SkinCatalog.default_id()
 	return saved
 
 
 func set_selected_id(id: String) -> void:
+	id = SkinCatalog.canonical_legacy_skin_id(id)
 	if not SkinCatalog.has_id(id):
+		id = SkinCatalog.default_id()
+	var rec := get_node_or_null("/root/PlayerRecords")
+	if rec != null and rec.has_method("is_skin_unlocked") and not rec.is_skin_unlocked(id):
 		id = SkinCatalog.default_id()
 	var cfg := ConfigFile.new()
 	cfg.load(SETTINGS_PATH)
@@ -106,7 +115,36 @@ func _try_load_model(holder: Node3D, skin: Dictionary) -> bool:
 	node3d.position = offset
 	node3d.rotation_degrees = Vector3(0, rot_y, 0)
 	node3d.scale = Vector3.ONE * maxf(0.0001, scale_mul)
+
+	var ca: Color = skin["char_albedo"]
+	var cs: Color = skin["char_shadow"]
+	_apply_toon_to_mesh_tree(node3d, ca, cs)
 	return true
+
+
+func _apply_toon_to_mesh_tree(node: Node, char_albedo: Color, char_shadow: Color) -> void:
+	if node is MeshInstance3D:
+		_apply_toon_to_mesh_surfaces(node as MeshInstance3D, char_albedo, char_shadow)
+	for c in node.get_children():
+		_apply_toon_to_mesh_tree(c, char_albedo, char_shadow)
+
+
+func _apply_toon_to_mesh_surfaces(mi: MeshInstance3D, char_albedo: Color, char_shadow: Color) -> void:
+	var mesh: Mesh = mi.mesh
+	if mesh == null:
+		return
+	var n := mesh.get_surface_count()
+	for si in range(n):
+		var mat := ShaderMaterial.new()
+		mat.shader = TOON_SHADER
+		mat.set_shader_parameter("albedo", char_albedo)
+		mat.set_shader_parameter("shadow_tint", Vector3(char_shadow.r, char_shadow.g, char_shadow.b))
+		# Match capsule knight tuning from player scene for consistent look.
+		mat.set_shader_parameter("shade_threshold", 0.45)
+		mat.set_shader_parameter("shade_softness", 0.07)
+		mat.set_shader_parameter("rim_strength", 0.45)
+		mat.set_shader_parameter("rim_power", 3.0)
+		mi.set_surface_override_material(si, mat)
 
 
 func _shader_material_from_mesh(mi: MeshInstance3D) -> ShaderMaterial:
