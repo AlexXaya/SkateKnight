@@ -3,23 +3,41 @@ extends Node
 const SkinCatalog := preload("res://scripts/skin_catalog.gd")
 const TOON_SHADER := preload("res://materials/toon.gdshader")
 
+const PERSIST_SETTING := "skate_knight/persist_skin_progress"
+
 const SETTINGS_PATH := "user://skate_knight_settings.cfg"
 const SECTION := "cosmetics"
 const KEY_SKIN := "selected_skin"
 
+var _cached_selected_id: String = ""
+
+
+func _persist_enabled() -> bool:
+	return bool(ProjectSettings.get_setting(PERSIST_SETTING, true))
+
+
+func _ready() -> void:
+	if _persist_enabled():
+		_cached_selected_id = _read_skin_from_disk_raw()
+	else:
+		_cached_selected_id = SkinCatalog.default_id()
+
+
+func _read_skin_from_disk_raw() -> String:
+	var cfg := ConfigFile.new()
+	if cfg.load(SETTINGS_PATH) != OK:
+		return ""
+	return str(cfg.get_value(SECTION, KEY_SKIN, ""))
+
 
 func get_selected_id() -> String:
-	var cfg := ConfigFile.new()
-	var err := cfg.load(SETTINGS_PATH)
-	var saved := ""
-	if err == OK:
-		saved = str(cfg.get_value(SECTION, KEY_SKIN, ""))
-	saved = SkinCatalog.canonical_legacy_skin_id(saved)
+	var saved := SkinCatalog.canonical_legacy_skin_id(_cached_selected_id)
 	if saved.is_empty() or not SkinCatalog.has_id(saved):
-		return SkinCatalog.default_id()
+		saved = SkinCatalog.default_id()
 	var rec := get_node_or_null("/root/PlayerRecords")
 	if rec != null and rec.has_method("is_skin_unlocked") and not rec.is_skin_unlocked(saved):
-		return SkinCatalog.default_id()
+		saved = SkinCatalog.default_id()
+	_cached_selected_id = saved
 	return saved
 
 
@@ -30,6 +48,9 @@ func set_selected_id(id: String) -> void:
 	var rec := get_node_or_null("/root/PlayerRecords")
 	if rec != null and rec.has_method("is_skin_unlocked") and not rec.is_skin_unlocked(id):
 		id = SkinCatalog.default_id()
+	_cached_selected_id = id
+	if not _persist_enabled():
+		return
 	var cfg := ConfigFile.new()
 	cfg.load(SETTINGS_PATH)
 	cfg.set_value(SECTION, KEY_SKIN, id)

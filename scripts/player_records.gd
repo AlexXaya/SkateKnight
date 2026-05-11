@@ -4,6 +4,9 @@ extends Node
 
 const SkinCatalog := preload("res://scripts/skin_catalog.gd")
 
+## When false, bests and unlock toasts are not saved; each game launch starts fresh (kiosk / shared device).
+const PERSIST_SETTING := "skate_knight/persist_skin_progress"
+
 const SETTINGS_PATH := "user://player_records.cfg"
 const SECTION := "records"
 
@@ -19,7 +22,13 @@ func _ready() -> void:
 	_load()
 
 
+func _persist_enabled() -> bool:
+	return bool(ProjectSettings.get_setting(PERSIST_SETTING, true))
+
+
 func _load() -> void:
+	if not _persist_enabled():
+		return
 	var cfg := ConfigFile.new()
 	if cfg.load(SETTINGS_PATH) != OK:
 		return
@@ -36,6 +45,8 @@ func _load() -> void:
 
 
 func _persist() -> void:
+	if not _persist_enabled():
+		return
 	var cfg := ConfigFile.new()
 	cfg.load(SETTINGS_PATH)
 	cfg.set_value(SECTION, "best_run_coins", best_run_coins)
