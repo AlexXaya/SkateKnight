@@ -5,6 +5,8 @@ extends Node
 
 var coins: int = 0
 var score: int = 0
+var trick_points: int = 0
+var obstacle_break_score: int = 0
 var best_distance: float = 0.0
 
 var _player: Node3D
@@ -25,6 +27,10 @@ func _ready() -> void:
 	if _player != null:
 		if _player.has_signal("coin_collected"):
 			_player.connect("coin_collected", _on_coin_collected)
+		if _player.has_signal("trick_scored"):
+			_player.connect("trick_scored", _on_trick_scored)
+		if _player.has_signal("obstacle_break_scored"):
+			_player.connect("obstacle_break_scored", _on_obstacle_break_scored)
 		if _player.has_signal("crashed"):
 			_player.connect("crashed", _on_crashed)
 
@@ -33,7 +39,7 @@ func _process(_delta: float) -> void:
 		return
 	var distance := maxf(0.0, _player.global_position.z - _start_z)
 	best_distance = maxf(best_distance, distance)
-	score = int(distance) + coins * 5
+	score = int(distance) + coins * 5 + trick_points + obstacle_break_score
 	stats_changed.emit(coins, score, distance)
 
 	# Clear danger state after the window expires.
@@ -47,6 +53,27 @@ func _process(_delta: float) -> void:
 func _on_coin_collected(amount: int) -> void:
 	coins += amount
 	coin_pickup.emit(amount)
+	_refresh_score_stats_now()
+
+
+func _on_trick_scored(amount: int) -> void:
+	trick_points += maxi(0, amount)
+	_refresh_score_stats_now()
+
+
+func _on_obstacle_break_scored(amount: int) -> void:
+	obstacle_break_score += maxi(0, amount)
+	_refresh_score_stats_now()
+
+
+func _refresh_score_stats_now() -> void:
+	if not _is_running or _player == null:
+		return
+	var distance := maxf(0.0, _player.global_position.z - _start_z)
+	best_distance = maxf(best_distance, distance)
+	score = int(distance) + coins * 5 + trick_points + obstacle_break_score
+	stats_changed.emit(coins, score, distance)
+
 
 func _on_crashed() -> void:
 	if not _is_running:

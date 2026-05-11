@@ -57,7 +57,7 @@ radius = 0.35
 size = Vector3(1.3, 1.0, 1.3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_high_obstacle"]
-size = Vector3(1.5, 0.6, 1.0)
+size = Vector3(1.55, 1.75, 1.05)
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(10, 1, 32)
@@ -215,7 +215,7 @@ rotation_degrees = Vector3(0, 25, 0)
 scale = Vector3(1.1, 1.1, 1.1)
 
 [node name="BeamHigh" type="StaticBody3D" parent="Obstacles"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.5, 18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 2.12, 18)
 groups=["despawn_on_hit"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/BeamHigh"]
@@ -224,12 +224,12 @@ shape = SubResource("BoxShape3D_high_obstacle")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/BeamHigh"]
 mesh = SubResource("BoxMesh_column")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
-scale = Vector3(1.8, 0.18, 0.8)
+scale = Vector3(1.85, 0.48, 0.82)
 visible = false
 
 [node name="RomanColumn" parent="Obstacles/BeamHigh" instance=ExtResource("7_roman_column")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
-scale = Vector3(1.05, 0.7, 0.7)
+scale = Vector3(1.05, 1.22, 0.7)
 
 [node name="RubbleLow_Lane2" type="StaticBody3D" parent="Obstacles"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.02, 22)
@@ -250,7 +250,7 @@ rotation_degrees = Vector3(0, -15, 0)
 scale = Vector3(1.1, 1.1, 1.1)
 
 [node name="BeamHigh_Lane3" type="StaticBody3D" parent="Obstacles"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.5, 30)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 2.12, 30)
 groups=["despawn_on_hit"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/BeamHigh_Lane3"]
@@ -259,9 +259,9 @@ shape = SubResource("BoxShape3D_high_obstacle")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/BeamHigh_Lane3"]
 mesh = SubResource("BoxMesh_column")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
-scale = Vector3(1.8, 0.18, 0.8)
+scale = Vector3(1.85, 0.48, 0.82)
 visible = false
 
 [node name="RomanColumn" parent="Obstacles/BeamHigh_Lane3" instance=ExtResource("7_roman_column")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
-scale = Vector3(1.05, 0.7, 0.7)
+scale = Vector3(1.05, 1.22, 0.7)

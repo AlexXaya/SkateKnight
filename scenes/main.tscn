@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://c0m0x6w2v2qj1"]
+[gd_scene load_steps=14 format=3 uid="uid://c0m0x6w2v2qj1"]
 
 [ext_resource type="Script" path="res://scripts/chunk_spawner.gd" id="2_w5q4j"]
 [ext_resource type="PackedScene" path="res://scenes/track/chunk_straight.tscn" id="3_6j0gq"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://scripts/hud.gd" id="5_4a2m3"]
 [ext_resource type="Shader" path="res://materials/toon.gdshader" id="6_2h3to"]
 [ext_resource type="Script" path="res://scripts/camera_follow.gd" id="7_1n0cl"]
-[ext_resource type="Script" path="res://scripts/input_debug.gd" id="8_inputdbg"]
 [ext_resource type="Script" path="res://scripts/input_setup.gd" id="9_inputsetup"]
 [ext_resource type="Script" path="res://scripts/pause_menu.gd" id="10_pausemenu"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="8_3p0h1"]
@@ -93,9 +92,6 @@ script = ExtResource("5_4a2m3")
 run_manager_path = NodePath("../RunManager")
 player_path = NodePath("../Player")
 layer = 10
-
-[node name="InputDebug" type="CanvasLayer" parent="."]
-script = ExtResource("8_inputdbg")
 
 [node name="PauseMenu" type="CanvasLayer" parent="."]
 script = ExtResource("10_pausemenu")

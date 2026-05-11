@@ -47,6 +47,16 @@ var _coin_box_pulse_tween: Tween
 @export var coin_pickup_sparkle_lifetime_s: float = 0.38
 @export var coin_pickup_sparkle_speed: float = 220.0
 
+@export var trick_popup_font_size: int = 30
+@export var trick_popup_rise_px: float = 56.0
+@export var trick_popup_duration_s: float = 0.82
+
+@export var shield_popup_title: String = "SHIELD SMASH!"
+@export var shield_popup_title_size: int = 17
+@export var shield_popup_points_size: int = 36
+@export var shield_popup_rise_px: float = 48.0
+@export var shield_popup_duration_s: float = 0.95
+
 var _powerup_slots: Dictionary = {}
 
 func _ready() -> void:
@@ -75,6 +85,10 @@ func _ready() -> void:
 			_rm.connect("danger_changed", _on_danger_changed)
 		if _rm.has_signal("coin_pickup"):
 			_rm.connect("coin_pickup", _on_coin_pickup)
+	if _player != null and _player.has_signal("trick_scored"):
+		_player.connect("trick_scored", _on_player_trick_scored)
+	if _player != null and _player.has_signal("obstacle_break_scored"):
+		_player.connect("obstacle_break_scored", _on_player_shield_break_scored)
 
 func _process(delta: float) -> void:
 	var step := maxf(1.0, count_speed) * maxf(0.0, delta)
@@ -92,13 +106,138 @@ func _on_stats_changed(coins: int, score: int, distance: float) -> void:
 	_coins_target = float(coins)
 	_score_target = float(score)
 	_dist_target = maxf(0.0, distance)
+	# Score includes distance + coins + tricks; show it immediately (no slow count-up lag).
+	_score_display = _score_target
 
 	_maybe_trigger_distance_milestone(_dist_target)
 
-	if _coins_display == 0.0 and _score_display == 0.0 and _dist_display == 0.0:
+	if _coins_display == 0.0 and _dist_display == 0.0:
 		_coins_display = _coins_target
-		_score_display = _score_target
 		_dist_display = _dist_target
+
+
+func _on_player_trick_scored(amount: int) -> void:
+	if amount <= 0:
+		return
+	_show_trick_bonus_popup(amount)
+
+
+func _on_player_shield_break_scored(amount: int) -> void:
+	if amount <= 0:
+		return
+	_show_shield_break_popup(amount)
+
+
+func _show_shield_break_popup(points: int) -> void:
+	if not is_instance_valid(_hud_root):
+		return
+	var layer := Control.new()
+	layer.name = "ShieldBreakPopup"
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.offset_left = 0.0
+	layer.offset_top = 0.0
+	layer.offset_right = 0.0
+	layer.offset_bottom = 0.0
+	layer.z_index = 82
+	_hud_root.add_child(layer)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(box)
+
+	var title := Label.new()
+	title.text = shield_popup_title
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", shield_popup_title_size)
+	title.add_theme_color_override("font_outline_color", Color(0.02, 0.12, 0.06, 0.95))
+	title.add_theme_constant_override("outline_size", 4)
+	title.modulate = Color(0.45, 1.0, 0.62, 1.0)
+	box.add_child(title)
+
+	var pts := Label.new()
+	pts.text = "+%d" % points
+	pts.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pts.add_theme_font_size_override("font_size", shield_popup_points_size)
+	pts.add_theme_color_override("font_outline_color", Color(0.05, 0.14, 0.08, 0.95))
+	pts.add_theme_constant_override("outline_size", 6)
+	pts.modulate = Color(0.75, 1.0, 0.45, 1.0)
+	box.add_child(pts)
+
+	call_deferred("_animate_shield_popup", box, layer, shield_popup_rise_px, shield_popup_duration_s)
+
+
+func _animate_shield_popup(box: Control, layer: Control, rise_px: float, dur_s: float) -> void:
+	if not is_instance_valid(box) or not is_instance_valid(layer):
+		return
+	var vp := get_viewport().get_visible_rect().size
+	var sz := box.get_combined_minimum_size()
+	if sz.x < 8.0 or sz.y < 8.0:
+		sz = box.size
+	var start := Vector2(vp.x * 0.5 - sz.x * 0.5, 108.0)
+	box.position = start
+	box.pivot_offset = Vector2(sz.x * 0.5, sz.y * 0.5)
+	box.scale = Vector2(0.72, 0.72)
+	var tw := create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(box, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(box, "position:y", start.y - rise_px, dur_s).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(box, "modulate:a", 0.0, dur_s).set_delay(0.12)
+	tw.finished.connect(func():
+		if is_instance_valid(layer):
+			layer.queue_free()
+	)
+
+
+func _show_trick_bonus_popup(points: int) -> void:
+	if not is_instance_valid(_hud_root) or not is_instance_valid(_score_box):
+		return
+	var layer := Control.new()
+	layer.name = "TrickBonusPopup"
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.offset_left = 0.0
+	layer.offset_top = 0.0
+	layer.offset_right = 0.0
+	layer.offset_bottom = 0.0
+	layer.z_index = 80
+	_hud_root.add_child(layer)
+
+	var lbl := Label.new()
+	lbl.text = "+%d" % points
+	lbl.add_theme_font_size_override("font_size", trick_popup_font_size)
+	lbl.add_theme_color_override("font_outline_color", Color(0.05, 0.06, 0.12, 0.95))
+	lbl.add_theme_constant_override("outline_size", 5)
+	lbl.modulate = Color(1.0, 0.9, 0.38, 1.0)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	layer.add_child(lbl)
+	call_deferred("_animate_trick_popup", lbl, layer, trick_popup_rise_px, trick_popup_duration_s)
+
+
+func _animate_trick_popup(lbl: Label, layer: Control, rise_px: float, dur_s: float) -> void:
+	if not is_instance_valid(lbl) or not is_instance_valid(layer) or not is_instance_valid(_score_box) or not is_instance_valid(_hud_root):
+		return
+	var ms := lbl.get_minimum_size()
+	lbl.custom_minimum_size = ms
+	lbl.size = ms
+	var sb := _score_box.get_global_rect()
+	var root := _hud_root.get_global_rect()
+	var start := Vector2(
+		sb.position.x - root.position.x + sb.size.x * 0.5 - ms.x * 0.5,
+		sb.position.y - root.position.y - 8.0
+	)
+	lbl.position = start
+	var tw := create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(lbl, "position:y", start.y - rise_px, dur_s).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(lbl, "modulate:a", 0.0, dur_s).set_delay(dur_s * 0.18)
+	tw.finished.connect(func():
+		if is_instance_valid(layer):
+			layer.queue_free()
+	)
+
 
 func _on_run_over() -> void:
 	# Freeze the count-up animation so stats don't keep climbing after death.

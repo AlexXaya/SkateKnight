@@ -19,10 +19,6 @@ run/main_scene="res://scenes/start_screen.tscn"
 config/features=PackedStringArray("4.6")
 config/icon="res://icon.svg"
 
-[skate_knight]
-
-persist_skin_progress=false
-
 [autoload]
 
 Music="*res://scripts/music.gd"
@@ -162,3 +158,7 @@ pause={
 [rendering]
 
 environment/defaults/default_environment="res://scenes/default_env.tres"
+
+[skate_knight]
+
+persist_skin_progress=false
